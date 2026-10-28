@@ -1,0 +1,17 @@
+{
+  "name": "zebella-designs",
+  "private": true,
+  "description": "Zebella Designs — Next.js storefront (web/) + Vite React CMS (admin/) on Firebase and Razorpay",
+  "scripts": {
+    "dev:web": "npm --prefix web run dev",
+    "dev:admin": "npm --prefix admin run dev",
+    "build": "npm --prefix web run build && npm --prefix admin run build",
+    "test": "npm --prefix web run test",
+    "e2e": "npm --prefix web run e2e",
+    "typecheck": "npm --prefix web run typecheck && npm --prefix admin exec tsc -- -b",
+    "seed": "node scripts/seed.mjs",
+    "seed:remove": "node scripts/seed.mjs --remove",
+    "art": "node scripts/generate-art.mjs",
+    "provision-admin": "node scripts/provision-admin.mjs"
+  }
+}

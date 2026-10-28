@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// Zebella Designs — Firebase Storage rules.
+// Public read for storefront media; writes only by catalogue/content staff, with type and size limits.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function role() { return request.auth != null && 'role' in request.auth.token ? request.auth.token.role : null; }
+    function isEditor() { return role() in ['admin', 'editor']; }
+    function isImage() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp|avif)')
+        && request.resource.size < 8 * 1024 * 1024;
+    }
+    function isVideo() {
+      return request.resource.contentType.matches('video/(mp4|webm)')
+        && request.resource.size < 50 * 1024 * 1024;
+    }
+
+    match /products/{allPaths=**} {
+      allow read: if true;
+      allow write: if isEditor() && (isImage() || isVideo());
+      allow delete: if isEditor();
+    }
+
+    match /categories/{allPaths=**} {
+      allow read: if true;
+      allow write: if isEditor() && isImage();
+      allow delete: if isEditor();
+    }
+
+    match /content/{allPaths=**} {
+      allow read: if true;
+      allow write: if isEditor() && isImage();
+      allow delete: if isEditor();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

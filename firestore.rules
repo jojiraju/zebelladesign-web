@@ -1,0 +1,143 @@
+rules_version = '2';
+
+// Zebella Designs — Firestore security rules.
+//
+// Authorization uses the VERIFIED custom claim `request.auth.token.role`, which can only be set by the
+// Firebase Admin SDK (see web/src/app/api/admin/bootstrap and /api/admin/users). Clients cannot write it.
+//
+// Reminder: the Admin SDK used by our API routes bypasses these rules, so every API route re-checks
+// authorization itself (web/src/lib/server/http.ts).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function signedIn() { return request.auth != null; }
+    function role() { return signedIn() && 'role' in request.auth.token ? request.auth.token.role : null; }
+    function isAdmin() { return role() == 'admin'; }
+    function isEditor() { return role() in ['admin', 'editor']; }               // catalog + content
+    function isOps() { return role() in ['admin', 'fulfillment']; }             // orders + inventory
+    function isStaff() { return role() in ['admin', 'editor', 'fulfillment']; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // ---------- public storefront content ----------
+    match /products/{id} {
+      allow read: if resource.data.status == 'published' || isStaff();
+      allow create, update, delete: if isEditor();
+      // Stock is mutated by trusted server code; editors may edit catalogue fields.
+    }
+
+    match /categories/{id} {
+      allow read: if resource.data.visible == true || isStaff();
+      allow write: if isEditor();
+    }
+
+    match /collections/{id} {
+      allow read: if resource.data.visible == true || isStaff();
+      allow write: if isEditor();
+    }
+
+    match /banners/{id} {
+      allow read: if resource.data.status == 'published' || isStaff();
+      allow write: if isEditor();
+    }
+
+    match /testimonials/{id} {
+      allow read: if resource.data.status == 'published' || isStaff();
+      allow write: if isEditor();
+    }
+
+    match /homepageContent/{id} {
+      allow read: if true;
+      allow write: if isEditor();
+    }
+
+    match /settings/{id} {
+      // Only the public store settings doc is readable by visitors. `settings/bootstrap` is server-only.
+      allow read: if id == 'store' || isStaff();
+      allow write: if id == 'store' && isEditor();
+    }
+
+    // ---------- customers ----------
+    match /users/{uid} {
+      allow read: if isOwner(uid) || role() in ['admin', 'fulfillment'];
+      // Customers may keep their own profile, addresses and wishlist — and nothing else (no role/claims fields).
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['email', 'displayName', 'phone', 'addresses', 'wishlist', 'createdAt', 'updatedAt'])
+        && request.resource.data.get('addresses', []).size() <= 20
+        && request.resource.data.get('wishlist', []).size() <= 200;
+      allow delete: if false;
+    }
+
+    match /carts/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['items', 'couponCode', 'updatedAt'])
+        && request.resource.data.items.size() <= 50;
+    }
+
+    // ---------- orders & payments (server-written only) ----------
+    match /orders/{orderId} {
+      // Customers read ONLY their own orders. No client may create/update/delete: totals and payment
+      // status are authoritative server data.
+      allow read: if isOwner(resource.data.userId) || role() in ['admin', 'fulfillment', 'editor'];
+      allow write: if false;
+    }
+
+    match /payments/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ---------- inventory ----------
+    match /inventoryMovements/{id} {
+      allow read: if isOps();
+      allow write: if false;
+    }
+    match /inventoryReservations/{id} {
+      allow read: if isOps();
+      allow write: if false;
+    }
+
+    // ---------- marketing ----------
+    match /coupons/{id} {
+      // Customers never read coupons; codes are validated server-side so they can't be enumerated.
+      allow read, write: if isEditor();
+      match /redemptions/{uid} {
+        allow read: if isAdmin();
+        allow write: if false;
+      }
+    }
+
+    match /newsletterSubscribers/{id} {
+      allow read: if isAdmin();
+      allow write: if false; // created via /api/newsletter (validated, rate limited)
+    }
+
+    match /contactMessages/{id} {
+      allow read: if isAdmin();
+      allow update: if isAdmin(); // status changes
+      allow create, delete: if false;
+    }
+
+    // ---------- reporting & audit ----------
+    match /statsDaily/{day} {
+      allow read: if role() in ['admin', 'editor'];
+      allow write: if false;
+    }
+
+    match /adminAuditLogs/{id} {
+      allow read: if isAdmin();
+      // Append-only, and an actor can only sign entries with their own uid.
+      allow create: if isStaff() && request.resource.data.actor == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ---------- internal bookkeeping: no client access at all ----------
+    match /webhookEvents/{id}  { allow read, write: if false; }
+    match /checkoutKeys/{id}   { allow read, write: if false; }
+    match /rateLimits/{id}     { allow read, write: if false; }
+
+    // Default deny.
+    match /{document=**} { allow read, write: if false; }
+  }
+}
