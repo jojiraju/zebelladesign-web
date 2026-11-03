@@ -11,6 +11,7 @@
   --color-taupe-deep: #6e5c61;    /* secondary text (5.3:1 on ivory) */
   --color-line: #efdfe0;
   --color-blush: #f8e3e6;
+  --color-wine: #5a2e3a;
   --color-rose-soft: #d99aa7;
   --color-danger: #9b2c2c;
   --color-ok: #3f6b4a;
@@ -100,7 +101,8 @@ h1, h2, h3, .font-serif { font-family: var(--font-serif); font-weight: 400; lett
 
 /* ---------- gentle route fade (CSS only; no JS, never blocks interaction) ---------- */
 @keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.page-in { animation: page-in .6s var(--ease-lux) both; }
+/* backwards (not both/forwards): a lingering transform would turn the page into the containing block for every position:fixed overlay inside it */
+.page-in { animation: page-in .6s var(--ease-lux) backwards; }
 
 /* slow drifting colour blobs behind dark feature cards */
 @keyframes aurora { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(60px,30px) scale(1.15); } 66% { transform: translate(-40px,60px) scale(.9); } }
@@ -135,3 +137,35 @@ h1, h2, h3, .font-serif { font-family: var(--font-serif); font-weight: 400; lett
 .rich blockquote { border-left: 2px solid var(--color-gold); padding-left: 1rem; font-style: italic; }
 .rich hr { border: 0; border-top: 1px solid var(--color-line); }
 .rich strong, .rich b { color: var(--color-espresso); font-weight: 600; }
+
+/* ---------- sign-in illustration motion (src/components/account/AuthIllustration.tsx) ---------- */
+.ai-in, .ai-sway, .ai-float, .ai-twinkle, .ai-swing, .ai-spin { transform-box: fill-box; }
+.ai-in { animation: ai-in .9s var(--ease-lux) both; animation-delay: var(--d, 0s); }
+@keyframes ai-in { from { opacity: 0; transform: translateY(-22px); } to { opacity: 1; transform: none; } }
+.ai-sway { transform-origin: 50% 0%; animation: ai-sway 5.5s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes ai-sway { 0%, 100% { transform: rotate(-2.4deg); } 50% { transform: rotate(2.4deg); } }
+.ai-float { transform-origin: 50% 100%; animation: ai-pop .9s var(--ease-lux) .6s both, ai-float 4.5s ease-in-out 1.5s infinite; }
+@keyframes ai-pop { from { opacity: 0; transform: translateY(26px) scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes ai-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.ai-twinkle { transform-origin: 50% 50%; animation: ai-twinkle 3.2s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes ai-twinkle { 0%, 100% { opacity: .25; transform: scale(.55) rotate(0deg); } 50% { opacity: 1; transform: scale(1.15) rotate(45deg); } }
+.ai-swing { transform-origin: 10% 0%; animation: ai-swing 4s ease-in-out infinite; }
+@keyframes ai-swing { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(10deg); } }
+.ai-spin { transform-origin: 50% 50%; animation: ai-spin 70s linear infinite; }
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .ai-in, .ai-sway, .ai-float, .ai-twinkle, .ai-swing, .ai-spin { animation: none !important; }
+}
+
+/* ---------- arched story image motion (home "Our story" + About hero) ---------- */
+.fx-breathe { transform-origin: 50% 100%; animation: fx-breathe 7s ease-in-out infinite; }
+@keyframes fx-breathe { 0%, 100% { transform: scale(1.02) rotate(-.6deg); } 50% { transform: scale(1.06) rotate(.6deg); } }
+.fx-bob { animation: fx-bob 4.8s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes fx-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.fx-drift { animation: fx-drift 9s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes fx-drift { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-10px, 12px) scale(1.06); } }
+.fx-spin { animation: fx-spin 40s linear infinite; }
+@keyframes fx-spin { to { transform: rotate(360deg); } }
+.fx-twinkle { animation: fx-twinkle 3.4s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes fx-twinkle { 0%, 100% { opacity: .2; transform: scale(.5) rotate(0); } 50% { opacity: 1; transform: scale(1.1) rotate(45deg); } }
+@media (prefers-reduced-motion: reduce) { .fx-breathe, .fx-bob, .fx-drift, .fx-spin, .fx-twinkle { animation: none !important; } }

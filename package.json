@@ -9,6 +9,11 @@
     "lint": "eslint",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "photos": "node scripts/import-photos.mjs",
+    "images:catalog": "node --env-file=.env.local scripts/generate-catalog-images.mjs",
+    "art": "node scripts/generate-fashion-art.mjs",
+    "images": "node --env-file=.env.local scripts/generate-images.mjs",
+    "images:dummy": "node scripts/generate-images.mjs --dummy --force",
     "e2e": "playwright test",
     "test:watch": "vitest"
   },

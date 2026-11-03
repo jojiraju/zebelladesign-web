@@ -10,7 +10,14 @@
 const BASE = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
 const TOKEN_KEY = "zebella.token";
 
-export const isApiConfigured = (): boolean => BASE.length > 0;
+/**
+ * Demo mode: no backend URL set, so the app runs on built-in sample data (src/lib/mock) — sign-in accepts any
+ * username/password and checkout is disabled. Set NEXT_PUBLIC_API_URL to use the real backend, or
+ * NEXT_PUBLIC_USE_MOCK=false to turn the sample data off.
+ */
+export const useMockApi: boolean = BASE.length === 0 && process.env.NEXT_PUBLIC_USE_MOCK !== "false";
+
+export const isApiConfigured = (): boolean => BASE.length > 0 || useMockApi;
 
 export class ApiError extends Error {
   constructor(message: string, public status: number, public code?: string) {
@@ -33,6 +40,7 @@ export const tokenStore = {
 
 /** fetch() against the backend with the session token attached. Returns the raw Response. */
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  if (useMockApi) return (await import("../mock/api")).mockFetch(path, init);
   if (!BASE) throw new ApiError("The store backend is not configured.", 0, "API_NOT_CONFIGURED");
   const token = tokenStore.get();
   return fetch(`${BASE}${path}`, {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Listing, ListingHeader } from "@/components/shop/Listing";
+import { collectionArt } from "@/lib/art";
 import { getCategories } from "@/lib/server/catalog";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -24,6 +25,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (!category) notFound();
   return (
     <Listing sp={await searchParams} base={{ category: slug }} basePath={`/categories/${slug}`}
-      header={<ListingHeader eyebrow="Category" title={category.name} description={category.description} crumbs={[{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, { label: category.name }]} />} />
+      header={<ListingHeader eyebrow="Category" title={category.name} image={collectionArt(category.imageUrl, 2)} description={category.description} crumbs={[{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, { label: category.name }]} />} />
   );
 }

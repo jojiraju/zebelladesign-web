@@ -36,6 +36,8 @@ export const DEFAULT_SETTINGS: StoreSettings = {
 };
 
 export interface HeroSlide {
+  /** The artwork already contains the headline/button (desktop shows it as a plain clickable banner). */
+  textInImage?: boolean;
   imageUrl?: string;
   mobileImageUrl?: string;
   eyebrow?: string;
@@ -58,7 +60,7 @@ export interface HomepageContent {
   hero: HeroSlide;
   featuredCollections: FeaturedTile[];
   featuredProductIds: string[];
-  brandStory: { eyebrow?: string; heading?: string; body?: string; imageUrl?: string; points?: { title: string; text: string }[] };
+  brandStory: { eyebrow?: string; heading?: string; body?: string; imageUrl?: string; points?: { title: string; text: string }[]; badge?: { title: string; text?: string } };
   social: { imageUrl: string; href: string; alt?: string }[];
   editorialMessage?: string;
 }

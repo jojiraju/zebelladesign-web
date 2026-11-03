@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowRight, Gem, Heart, Scissors, Sparkles } from "lucide-react";
 import { RichText } from "@/components/ui/RichText";
 import { Reveal, WordReveal, ParallaxFrame } from "@/components/ui/motion";
 import { ProductGrid } from "@/components/product/ProductGrid";
@@ -29,38 +30,54 @@ const DEFAULT_TILES: FeaturedTile[] = [
   { title: "Best Sellers", imageUrl: "/art/tile-best.svg", href: "/shop?sort=popular", size: "small" },
 ];
 
-const spans: Record<NonNullable<FeaturedTile["size"]>, string> = {
-  large: "md:col-span-7 md:row-span-2 aspect-[4/5] md:aspect-auto",
-  tall: "md:col-span-5 md:row-span-2 aspect-[4/5] md:aspect-auto",
-  wide: "md:col-span-6 aspect-[16/10]",
-  small: "md:col-span-3 aspect-[4/5] md:aspect-auto",
+/** Bento layout: mobile stacks (big tiles full width, small ones in pairs); desktop uses a fixed 12-column grid. */
+const SPANS: Record<NonNullable<FeaturedTile["size"]>, string> = {
+  large: "col-span-2 aspect-[4/5] md:col-span-7 md:row-span-4 md:aspect-auto",
+  tall: "col-span-2 aspect-[4/5] md:col-span-5 md:row-span-4 md:aspect-auto",
+  wide: "col-span-2 aspect-[16/10] md:col-span-6 md:row-span-2 md:aspect-auto",
+  small: "col-span-1 aspect-[3/4] md:col-span-3 md:row-span-2 md:aspect-auto",
+};
+const TITLE: Record<NonNullable<FeaturedTile["size"]>, string> = {
+  large: "text-3xl sm:text-4xl", tall: "text-3xl sm:text-4xl", wide: "text-2xl sm:text-3xl", small: "text-lg sm:text-2xl",
 };
 
 export function CollectionsMosaic({ tiles }: { tiles: FeaturedTile[] }) {
   const items = (tiles.length ? tiles : DEFAULT_TILES).slice(0, 5);
   const layout: NonNullable<FeaturedTile["size"]>[] = ["large", "tall", "wide", "small", "small"];
   return (
-    <section className="container-x mt-28" aria-labelledby="col-h">
-      <SectionHead eyebrow="Explore" title="The Collections" href="/collections" />
-      <h2 id="col-h" className="sr-only">Featured collections</h2>
-      <div className="grid grid-cols-1 gap-4 md:min-h-[78rem] md:grid-cols-12 md:grid-rows-[repeat(4,minmax(0,1fr))] md:gap-5">
-        {items.map((t, i) => (
-          <Reveal key={t.title + i} delay={i * 0.06} className={`${spans[t.size ?? layout[i]]} ${i === 0 ? "md:row-span-3" : ""}`}>
-            <Link href={t.href} className="group relative block h-full min-h-72 overflow-hidden bg-cream">
-              {t.imageUrl && <Image src={t.imageUrl} alt="" fill sizes="(min-width:768px) 50vw, 100vw" className="object-cover transition-transform duration-[1600ms] ease-[var(--ease-lux)] group-hover:scale-[1.05]" />}
-              <div className="absolute inset-0 bg-gradient-to-t from-espresso/65 via-transparent to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-6 text-ivory sm:p-8">
-                <div>
-                  {t.subtitle && <p className="eyebrow !text-gold mb-2">{t.subtitle}</p>}
-                  <h3 className="font-serif text-3xl leading-none sm:text-4xl">{t.title}</h3>
+    <section className="container-x mt-24 sm:mt-32" aria-labelledby="col-h">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-5 sm:mb-12">
+        <div className="max-w-xl">
+          <p className="eyebrow mb-3">Explore</p>
+          <h2 id="col-h" className="h-section font-serif"><WordReveal text="The Collections" /></h2>
+          <Reveal delay={0.1}><p className="mt-4 text-taupe-deep">Handpicked edits for every occasion — from festive favourites to everyday essentials.</p></Reveal>
+        </div>
+        <Link href="/collections" className="btn btn-ghost">View all collections <ArrowRight size={15} className="arrow" aria-hidden /></Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:auto-rows-[11rem] md:grid-cols-12 md:gap-5">
+        {items.map((t, i) => {
+          const size = t.size ?? layout[i];
+          return (
+            <Reveal key={t.title + i} delay={i * 0.07} className={SPANS[size]}>
+              <Link href={t.href} className="group relative block h-full min-h-48 overflow-hidden rounded-[1.5rem] bg-cream shadow-[0_30px_60px_-40px_rgba(35,26,29,.55)] sm:rounded-[1.75rem]">
+                {t.imageUrl && <Image src={t.imageUrl} alt="" fill sizes="(min-width:768px) 50vw, 100vw" className="object-cover object-top transition-transform duration-[1600ms] ease-[var(--ease-lux)] group-hover:scale-[1.06]" />}
+                <div className="absolute inset-0 bg-gradient-to-t from-espresso/55 via-transparent to-espresso/10" aria-hidden />
+
+                <span className="absolute left-3 top-3 rounded-full bg-white/80 px-3 py-1 text-[0.65rem] font-semibold tracking-[0.2em] text-espresso backdrop-blur sm:left-5 sm:top-5" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
+
+                {/* Frosted label card */}
+                <div className="absolute inset-x-2.5 bottom-2.5 flex items-center justify-between gap-3 rounded-2xl bg-white/80 p-3.5 backdrop-blur-md transition-transform duration-500 ease-[var(--ease-lux)] group-hover:-translate-y-1 sm:inset-x-4 sm:bottom-4 sm:p-5">
+                  <div className="min-w-0">
+                    {t.subtitle && <p className="mb-1 truncate text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-gold-deep">{t.subtitle}</p>}
+                    <h3 className={`font-serif leading-tight text-espresso ${TITLE[size]}`}>{t.title}</h3>
+                  </div>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-gold to-gold-deep text-white transition-transform duration-500 group-hover:translate-x-0.5 group-hover:scale-110 sm:h-11 sm:w-11" aria-hidden><ArrowRight size={16} /></span>
                 </div>
-                <span className="grid h-12 w-12 place-items-center border border-ivory/60 transition-all duration-500 group-hover:bg-ivory group-hover:text-espresso" aria-hidden>
-                  <span className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
-                </span>
-              </div>
-            </Link>
-          </Reveal>
-        ))}
+              </Link>
+            </Reveal>
+          );
+        })}
       </div>
     </section>
   );
@@ -86,20 +103,31 @@ export function FeaturedProducts({ products, backendReady }: { products: Product
 export function PromoBanners({ banners }: { banners: Banner[] }) {
   if (!banners.length) return null;
   return (
-    <section className="mt-32 space-y-5" aria-label="Promotions">
+    <section className="container-x mt-24 space-y-6 sm:mt-32" aria-label="Promotions">
       {banners.slice(0, 3).map((b) => (
         <Reveal key={b.id}>
-          <div className="relative isolate flex min-h-[26rem] items-center overflow-hidden bg-cream sm:min-h-[30rem]">
-            <ParallaxFrame className="absolute inset-0 -z-10" strength={7}>
-              {b.mobileImage && <Image src={b.mobileImage} alt="" fill sizes="100vw" className="object-cover md:hidden" />}
-              {(b.desktopImage || !b.mobileImage) && <Image src={b.desktopImage || "/art/banner.svg"} alt="" fill sizes="100vw" className={`object-cover ${b.mobileImage ? "hidden md:block" : ""}`} />}
+          <div className="group relative isolate flex flex-col overflow-hidden rounded-[1.75rem] bg-[#0f2a1d] shadow-[0_40px_80px_-45px_rgba(23,56,42,.8)] sm:min-h-[28rem] sm:flex-row sm:items-center sm:rounded-[2rem]">
+            {/* Phones: artwork on top, text below (so the models are never covered) */}
+            <div className="relative h-72 sm:hidden">
+              <Image src={b.mobileImage || b.desktopImage || "/art/banner.svg"} alt="" fill sizes="100vw" className="object-cover object-[78%_top]" />
+              <div aria-hidden className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0f2a1d] to-transparent" />
+            </div>
+            {/* Desktop: artwork fills the card, anchored right; a soft scrim keeps the text readable */}
+            <ParallaxFrame className="absolute inset-0 -z-20 hidden sm:block" strength={6}>
+              <Image src={b.desktopImage || b.mobileImage || "/art/banner.svg"} alt="" fill sizes="100vw" className="object-cover object-right transition-transform duration-[1800ms] ease-[var(--ease-lux)] group-hover:scale-[1.03]" />
             </ParallaxFrame>
-            <div className="container-x">
-              <div className="max-w-xl bg-ivory/90 p-8 backdrop-blur-sm sm:p-12">
-                <h2 className="font-serif text-4xl leading-tight sm:text-5xl">{b.heading}</h2>
-                {b.description && <p className="mt-4 text-taupe-deep">{b.description}</p>}
-                {b.ctaLabel && b.href && <Link href={b.href} className="btn btn-solid mt-8">{b.ctaLabel} <span className="arrow">→</span></Link>}
-              </div>
+            <div aria-hidden className="absolute inset-y-0 left-0 -z-10 hidden w-[58%] bg-gradient-to-r from-[#0f2a1d] via-[#0f2a1d]/80 to-transparent sm:block" />
+
+            <div className="relative w-full px-6 pb-8 pt-2 sm:max-w-[34rem] sm:p-12 lg:p-16">
+              <span className="inline-flex items-center gap-2 rounded-full border border-ivory/30 bg-ivory/10 px-4 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-ivory backdrop-blur"><Sparkles size={13} aria-hidden />Featured edit</span>
+              <h2 className="mt-5 font-serif text-4xl leading-[1.05] text-ivory sm:text-5xl lg:text-6xl">{b.heading}</h2>
+              {b.description && <p className="mt-4 max-w-md text-base leading-7 text-ivory/80 sm:text-lg">{b.description}</p>}
+              {b.ctaLabel && b.href && (
+                <div className="mt-8 flex flex-wrap items-center gap-4">
+                  <Link href={b.href} className="btn btn-light">{b.ctaLabel} <ArrowRight size={16} className="arrow" aria-hidden /></Link>
+                  <Link href="/collections" className="link-underline text-xs font-semibold uppercase tracking-[0.18em] text-ivory/90">All collections</Link>
+                </div>
+              )}
             </div>
           </div>
         </Reveal>
@@ -109,24 +137,63 @@ export function PromoBanners({ banners }: { banners: Banner[] }) {
 }
 
 /* ---------- Brand story ---------- */
+const STORY_ICONS = [Scissors, Sparkles, Heart, Gem];
+
 export function BrandStory({ story }: { story: HomepageContent["brandStory"] }) {
   return (
-    <section className="container-x mt-36 grid items-center gap-12 md:grid-cols-2 lg:gap-24" aria-labelledby="story-h">
-      <ParallaxFrame className="aspect-[4/5] bg-cream md:order-2" strength={6}>
-        <Image src={story.imageUrl || "/art/story.svg"} alt="" fill sizes="(min-width:768px) 45vw, 100vw" className="object-cover" />
-      </ParallaxFrame>
-      <div>
-        {story.eyebrow && <p className="eyebrow mb-5">{story.eyebrow}</p>}
-        <h2 id="story-h" className="h-section font-serif"><WordReveal text={story.heading ?? ""} /></h2>
-        {story.body && <Reveal delay={0.15}><RichText className="mt-8 max-w-lg text-lg text-taupe-deep" html={story.body} /></Reveal>}
-        {!!story.points?.length && (
-          <dl className="mt-10 grid gap-6 sm:grid-cols-2">
-            {story.points.map((p) => (
-              <Reveal key={p.title}><div className="border-t border-line pt-4"><dt className="font-serif text-xl">{p.title}</dt><dd className="mt-1 text-sm text-taupe-deep">{p.text}</dd></div></Reveal>
-            ))}
-          </dl>
-        )}
-        <Reveal delay={0.2}><Link href="/about" className="btn btn-ghost mt-10">Our story <span className="arrow">→</span></Link></Reveal>
+    <section className="container-x mt-24 sm:mt-32" aria-labelledby="story-h">
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blush/70 via-ivory to-white p-6 shadow-[0_40px_80px_-50px_rgba(143,74,91,.55)] ring-1 ring-line sm:p-10 lg:p-14">
+        <div aria-hidden className="pointer-events-none absolute -left-20 -top-24 h-72 w-72 rounded-full bg-rose-soft/20" />
+        <div className="relative grid items-center gap-10 md:grid-cols-[1.05fr_1fr] lg:gap-16">
+          <div>
+            {story.eyebrow && <p className="eyebrow mb-4">{story.eyebrow}</p>}
+            <h2 id="story-h" className="font-serif text-4xl leading-[1.1] sm:text-5xl lg:text-[3.4rem]"><WordReveal text={story.heading ?? ""} /></h2>
+            {story.body && <Reveal delay={0.15}><RichText className="mt-6 max-w-xl text-lg leading-8 text-taupe-deep" html={story.body} /></Reveal>}
+
+            {!!story.points?.length && (
+              <ul className="mt-8 grid gap-3 sm:grid-cols-3">
+                {story.points.slice(0, 3).map((p, i) => {
+                  const Icon = STORY_ICONS[i % STORY_ICONS.length];
+                  return (
+                    <Reveal as="li" key={p.title} delay={0.1 + i * 0.08}>
+                      <div className="h-full rounded-2xl border border-line bg-white/80 p-4 backdrop-blur transition hover:-translate-y-1 hover:border-gold">
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-blush to-rose-soft/60 text-gold-deep"><Icon size={18} strokeWidth={1.6} aria-hidden /></span>
+                        <h3 className="mt-3 font-serif text-lg leading-tight">{p.title}</h3>
+                        <p className="mt-1 text-xs leading-5 text-taupe-deep">{p.text}</p>
+                      </div>
+                    </Reveal>
+                  );
+                })}
+              </ul>
+            )}
+
+            <Reveal delay={0.25} className="mt-9 flex flex-wrap items-center gap-4">
+              <Link href="/about" className="btn btn-solid">Our story <ArrowRight size={15} className="arrow" aria-hidden /></Link>
+              <Link href="/shop" className="link-underline text-xs font-semibold uppercase tracking-[0.18em]">Shop the collection</Link>
+            </Reveal>
+          </div>
+
+          {/* Arched image with floating details */}
+          <Reveal y={40} className="relative mx-auto w-full max-w-md md:max-w-none">
+            <div aria-hidden className="fx-drift absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gradient-to-br from-gold/30 to-rose-soft/40" />
+            <div aria-hidden className="fx-spin absolute -bottom-6 -left-6 h-44 w-44 rounded-full border border-dashed border-gold/50" />
+            <span aria-hidden className="fx-twinkle absolute right-[8%] top-[30%] z-10 h-5 w-5 text-gold" style={{ ["--d" as string]: "0.4s" }}><svg viewBox="-16 -16 32 32"><path d="M0,-14 C1,-5 5,-1 14,0 C5,1 1,5 0,14 C-1,5 -5,1 -14,0 C-5,-1 -1,-5 0,-14 Z" fill="currentColor" /></svg></span>
+            <span aria-hidden className="fx-twinkle absolute left-[14%] top-[6%] z-10 h-4 w-4 text-rose" style={{ ["--d" as string]: "1.6s" }}><svg viewBox="-16 -16 32 32"><path d="M0,-14 C1,-5 5,-1 14,0 C5,1 1,5 0,14 C-1,5 -5,1 -14,0 C-5,-1 -1,-5 0,-14 Z" fill="currentColor" /></svg></span>
+            <ParallaxFrame className="relative aspect-[4/5] overflow-hidden rounded-t-[999px] rounded-b-[1.75rem] bg-cream shadow-[0_40px_80px_-40px_rgba(35,26,29,.55)]" strength={5}>
+              <Image src={story.imageUrl || "/art/story.svg"} alt="" fill sizes="(min-width:768px) 40vw, 90vw" className="fx-breathe object-cover object-top" />
+            </ParallaxFrame>
+            <div className="fx-bob absolute -left-3 top-[18%] flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_20px_40px_-24px_rgba(143,74,91,.7)] sm:-left-6">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-gold to-gold-deep text-white"><Heart size={17} aria-hidden /></span>
+              <span className="text-xs leading-4"><b className="block text-sm font-medium">Handcrafted</b><span className="text-taupe-deep">with care</span></span>
+            </div>
+            {story.badge && (
+              <div style={{ ["--d" as string]: "1.2s" }} className="fx-bob absolute -right-2 bottom-[10%] rounded-2xl bg-espresso px-5 py-3 text-ivory shadow-[0_20px_40px_-24px_rgba(35,26,29,.8)] sm:-right-5">
+                <p className="font-serif text-2xl leading-none">{story.badge.title}</p>
+                {story.badge.text && <p className="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-ivory/70">{story.badge.text}</p>}
+              </div>
+            )}
+          </Reveal>
+        </div>
       </div>
     </section>
   );

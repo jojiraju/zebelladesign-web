@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ART } from "@/lib/art";
 import { Eye, Heart } from "lucide-react";
 import { Price } from "@/components/ui/Price";
 import { useWishlist } from "@/components/providers/WishlistProvider";
@@ -32,7 +33,7 @@ export function ProductCard({ product, priority = false, sizes = "(min-width:102
                 className={`object-cover transition-all duration-[1100ms] ease-[var(--ease-lux)] group-hover:scale-[1.04] ${img2 ? "group-hover:opacity-0" : ""} ${soldOut ? "opacity-70" : ""}`} />
               {img2 && <Image src={img2.url} alt="" fill sizes={sizes} className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100" />}
             </>
-          ) : <div className="grid h-full place-items-center text-sm text-taupe-deep">No image</div>}
+          ) : <Image src={ART.productPlaceholder} alt={product.name} fill sizes={sizes} className="object-cover" />}
         </Link>
         {badge && <span className="absolute left-3 top-3 z-[2] rounded-full bg-ivory px-3 py-1 text-[0.62rem] font-medium uppercase tracking-[0.22em]">{badge}</span>}
         <button type="button" aria-pressed={wished} aria-label={wished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}

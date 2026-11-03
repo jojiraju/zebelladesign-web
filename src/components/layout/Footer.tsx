@@ -11,7 +11,7 @@ export function Footer({ settings, categories }: { settings: StoreSettings; cate
   const socials = Object.entries(social).filter(([, v]) => !!v) as [string, string][];
   return (
     <footer className="mt-32 bg-espresso text-ivory/90">
-      <div className="container-x grid gap-14 py-20 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.4fr]">
+      <div className="container-x grid gap-14 py-20 md:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)]">
         <div>
           <div className="w-56"><LogoFull light /></div>
           {settings.footer.description && <p className="mt-6 max-w-xs text-sm text-ivory/70">{settings.footer.description}</p>}

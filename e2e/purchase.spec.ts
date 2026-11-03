@@ -23,6 +23,7 @@ test("customer registers, buys a product with a test payment, and the order appe
   // 1-2. register (also signs in)
   await page.goto("/register");
   await page.getByLabel("Full name").fill("E2E Customer");
+  await page.getByLabel("Username").fill(`e2e${Date.now()}`);
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByLabel("Confirm password").fill(password);
@@ -40,6 +41,7 @@ test("customer registers, buys a product with a test payment, and the order appe
   // 6. checkout steps
   await page.getByRole("button", { name: /Continue/ }).click(); // contact (prefilled)
   await page.getByLabel("Full name").fill("E2E Customer");
+  await page.getByLabel("Username").fill(`e2e${Date.now()}`);
   await page.getByLabel("Mobile number").fill("9876543210");
   await page.getByLabel("Address line 1").fill("1 Test Road");
   await page.getByLabel("City").fill("Kochi");

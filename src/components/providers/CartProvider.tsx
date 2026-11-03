@@ -49,7 +49,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItemInput[]>([]);
   const [couponCode, setCouponCode] = useState("");
   const [open, setOpen] = useState(false);
-  const hydrated = useRef(false);
+  // State (not a ref): the persist effect must only run once the stored cart is IN state, otherwise the first
+  // commit would overwrite the saved cart with the empty initial one.
+  const [hydrated, setHydrated] = useState(false);
   const mergedFor = useRef<string | null>(null);
 
   // Hydrate guest cart from localStorage once.
@@ -59,14 +61,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems(l.items);
     setCouponCode(l.couponCode);
     /* eslint-enable react-hooks/set-state-in-effect */
-    hydrated.current = true;
+    setHydrated(true);
   }, []);
 
   // Persist locally (guest carts) on every change.
   useEffect(() => {
-    if (!hydrated.current) return;
+    if (!hydrated) return;
     try { localStorage.setItem(KEY, JSON.stringify({ items, couponCode })); } catch { /* private mode */ }
-  }, [items, couponCode]);
+  }, [items, couponCode, hydrated]);
 
   // Signed-in: merge guest cart with the account cart exactly once per login, then mirror to the account cart (API).
   useEffect(() => {
@@ -88,14 +90,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Mirror to the account cart (debounced).
   useEffect(() => {
-    if (!user || !isApiConfigured() || mergedFor.current !== user.id || !hydrated.current) return;
+    if (!user || !isApiConfigured() || mergedFor.current !== user.id || !hydrated) return;
     const t = setTimeout(() => {
       // PUT /cart { items, couponCode }
       apiJson("/cart", { method: "PUT", json: { items, couponCode } }).catch((e) =>
         console.error("[cart] sync failed", e));
     }, 600);
     return () => clearTimeout(t);
-  }, [items, couponCode, user]);
+  }, [items, couponCode, user, hydrated]);
 
   // Cross-tab sync for guest carts.
   useEffect(() => {

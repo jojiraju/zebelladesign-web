@@ -44,9 +44,12 @@ test("unknown product and category return 404", async ({ page }) => {
   expect((await page.goto("/categories/nope"))?.status()).toBe(404);
 });
 
-test("auth pages explain that accounts are unavailable when the backend is not configured", async ({ page }) => {
+test("sign-in page offers username and password login", async ({ page }) => {
   await page.goto("/login");
-  await expect(page.getByText(/Customer accounts are not available yet|backend has not been configured/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  await expect(page.getByLabel("Username")).toBeVisible();
+  await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
 });
 
 test("the account area never exposes data without sign-in", async ({ page }) => {

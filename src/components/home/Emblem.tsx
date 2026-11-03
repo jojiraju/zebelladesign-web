@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 
@@ -30,8 +31,11 @@ export function Emblem({ message }: { message: string }) {
           <p className="eyebrow !text-gold mb-5">The Zebella signature</p>
           <p className="font-serif text-4xl font-light leading-tight sm:text-6xl">{message}</p>
         </div>
-        <div ref={ref} className="relative mx-auto aspect-square w-full max-w-md" role="img" aria-label="Decorative rotating gold emblem">
-          {on ? <Scene /> : <div className="absolute inset-[12%] rounded-full border border-gold/60" aria-hidden><div className="absolute inset-[14%] rounded-full border border-gold/40" /><div className="absolute inset-[28%] rounded-full border border-gold/25" /></div>}
+        <div ref={ref} className="relative mx-auto aspect-square w-full max-w-md" role="img" aria-label="Decorative 3D Zebella ZB monogram">
+          {on ? <Scene /> : (
+            // Static fallback (reduced motion / low-power devices / before scroll-in): the flat monogram
+            <div className="absolute inset-0 grid place-items-center" aria-hidden><Image src="/brand/logo-mark.png" alt="" width={500} height={414} className="h-auto w-[78%]" /></div>
+          )}
         </div>
       </div>
     </section>

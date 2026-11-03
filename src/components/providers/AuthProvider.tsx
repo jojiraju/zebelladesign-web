@@ -1,10 +1,12 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { ApiError, apiJson, isApiConfigured, tokenStore } from "@/lib/api/client";
+import { authApi, type Session } from "@/lib/api/auth";
 import type { Address } from "@/lib/types";
 
 export interface Profile {
   displayName?: string;
+  email?: string;
   phone?: string;
   addresses?: (Address & { id: string; label?: string })[];
   wishlist?: string[];
@@ -12,22 +14,20 @@ export interface Profile {
 
 export interface User {
   id: string;
-  email: string;
+  username?: string;
+  email?: string;
+  phone?: string;
   displayName?: string;
-  emailVerified: boolean;
 }
-
-interface Session { token: string; user: User; profile?: Profile }
 
 interface AuthCtx {
   user: User | null;
   profile: Profile;
   ready: boolean;
   configured: boolean;
-  register(a: { name: string; email: string; password: string }): Promise<void>;
-  login(email: string, password: string): Promise<void>;
-  resetPassword(email: string): Promise<void>;
-  resendVerification(): Promise<void>;
+  register(a: { name: string; username: string; email: string; password: string }): Promise<void>;
+  login(username: string, password: string): Promise<void>;
+  resetPassword(identifier: string): Promise<void>;
   logout(): Promise<void>;
   saveProfile(patch: Partial<Profile>): Promise<void>;
 }
@@ -36,6 +36,7 @@ const Ctx = createContext<AuthCtx | null>(null);
 
 /** Customer-facing message for an auth failure (the API supplies the text; never raw errors or stack traces). */
 export function authMessage(e: unknown): string {
+  if (e instanceof ApiError && e.code === "API_NOT_CONFIGURED") return "Sign-in is not connected yet. Please try again later.";
   if (e instanceof ApiError && e.status !== 0 && e.status < 500) return e.message;
   return "Something went wrong. Please try again.";
 }
@@ -59,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     (async () => {
       if (tokenStore.get()) {
         try {
-          const me = await apiJson<{ user: User; profile?: Profile }>("/auth/me", { method: "GET" });
+          const me = await authApi.me();
           if (live) { setUser(me.user); setProfile(me.profile ?? {}); }
         } catch (e) {
           if (e instanceof ApiError && e.status === 401) tokenStore.set(null);
@@ -73,20 +74,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AuthCtx>(() => ({
     user, profile, ready, configured,
-    async register({ name, email, password }) {
-      apply(await apiJson<Session>("/auth/register", { json: { name, email, password } }));
+    async register(a) {
+      apply(await authApi.register(a));
     },
-    async login(email, password) {
-      apply(await apiJson<Session>("/auth/login", { json: { email, password } }));
+    async login(username, password) {
+      apply(await authApi.login(username, password));
     },
-    async resetPassword(email) {
-      await apiJson("/auth/password-reset", { json: { email } });
-    },
-    async resendVerification() {
-      await apiJson("/auth/resend-verification", { json: {} });
+    async resetPassword(identifier) {
+      await authApi.requestPasswordReset(identifier);
     },
     async logout() {
-      await apiJson("/auth/logout", { json: {} }).catch(() => undefined); // best effort; local sign-out always happens
+      await authApi.logout().catch(() => undefined); // best effort; local sign-out always happens
       tokenStore.set(null);
       setUser(null);
       setProfile({});

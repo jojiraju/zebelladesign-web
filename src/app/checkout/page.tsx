@@ -9,8 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function CheckoutPage() {
   const settings = await getSettings();
   return (
-    <div className="container-x py-12 sm:py-16">
-      <h1 className="mb-10 font-serif text-5xl">Checkout</h1>
+    <div className="container-x py-8 sm:py-14">
       <CheckoutFlow methods={settings.shippingMethods} />
     </div>
   );

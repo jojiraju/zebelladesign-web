@@ -23,7 +23,7 @@ export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hid
   }, [product]);
 
   const [size, setSize] = useState<string | undefined>(sizes.length === 1 ? sizes[0] : undefined);
-  const [color, setColor] = useState<string | undefined>(colors.length === 1 ? colors[0].name : undefined);
+  const [color, setColor] = useState<string | undefined>(colors[0]?.name);
   const [wantQty, setQty] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [phase, setPhase] = useState<"idle" | "adding" | "added">("idle");

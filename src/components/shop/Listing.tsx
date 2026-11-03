@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Suspense } from "react";
 import { FilterPanel } from "./FilterPanel";
 import { ProductGrid } from "@/components/product/ProductGrid";
@@ -58,7 +59,7 @@ export async function Listing({ base, sp, basePath, header }: { base: ProductFil
   );
 }
 
-export function ListingHeader({ eyebrow, title, description, crumbs }: { eyebrow?: string; title: string; description?: string; crumbs?: { label: string; href?: string }[] }) {
+export function ListingHeader({ eyebrow, title, description, crumbs, image }: { eyebrow?: string; title: string; description?: string; image?: string; crumbs?: { label: string; href?: string }[] }) {
   return (
     <header>
       {crumbs && (
@@ -71,6 +72,7 @@ export function ListingHeader({ eyebrow, title, description, crumbs }: { eyebrow
       {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
       <h1 className="font-serif text-5xl leading-none sm:text-7xl">{title}</h1>
       {description && <p className="mt-5 max-w-xl text-taupe-deep">{description}</p>}
+      {image && <div className="relative mt-8 aspect-[21/7] w-full overflow-hidden rounded-2xl bg-cream"><Image src={image} alt="" fill priority sizes="100vw" className="object-cover" /></div>}
     </header>
   );
 }

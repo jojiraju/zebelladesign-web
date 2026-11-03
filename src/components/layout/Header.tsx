@@ -2,10 +2,12 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { collectionArt } from "@/lib/art";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
 import { Heart, House, Menu, Search, ShoppingBag, User, X } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { SearchOverlay } from "./SearchOverlay";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -15,7 +17,6 @@ type Mega = "shop" | "collections" | null;
 
 export function Header({ categories, collections }: { categories: Category[]; collections: Collection[] }) {
   const pathname = usePathname();
-  const router = useRouter();
   const { count, setOpen: openCart } = useCart();
   const wishlist = useWishlist();
   const { user } = useAuth();
@@ -29,7 +30,16 @@ export function Header({ categories, collections }: { categories: Category[]; co
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const isHome = pathname === "/";
-  const transparent = isHome && !scrolled && !mega && !drawer;
+  // A light desktop banner (Hero textInImage) needs the dark header text, not the ivory-on-photo style.
+  const [lightBanner, setLightBanner] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const sync = () => setLightBanner(isHome && mq.matches && !!document.querySelector("[data-hero-banner]"));
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, [isHome]);
+  const transparent = isHome && !scrolled && !mega && !drawer && !lightBanner;
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 40);
@@ -135,7 +145,7 @@ export function Header({ categories, collections }: { categories: Category[]; co
       </div>
 
       <MobileDrawer open={drawer} onClose={() => setDrawer(false)} categories={categories} collections={collections} signedIn={!!user} />
-      <SearchOverlay open={search} onClose={() => setSearch(false)} onSubmit={(q) => router.push(`/search?q=${encodeURIComponent(q)}`)} />
+      <SearchOverlay open={search} onClose={() => setSearch(false)} categories={categories} />
     </header>
   );
 }
@@ -148,10 +158,10 @@ function MegaTiles({ items }: { items: Collection[] }) {
   if (!items.length) return <div className="col-span-9" />;
   return (
     <div className="col-span-9 grid grid-cols-3 gap-6">
-      {items.map((c) => (
+      {items.map((c, i) => (
         <Link key={c.id} href={`/collections/${c.slug}`} className="group block">
           <div className="relative aspect-[4/5] overflow-hidden bg-cream">
-            {c.imageUrl && <Image src={c.imageUrl} alt="" fill sizes="25vw" className="object-cover transition-transform duration-[1200ms] ease-[var(--ease-lux)] group-hover:scale-105" />}
+            <Image src={collectionArt(c.imageUrl, i)} alt="" fill sizes="25vw" className="object-cover transition-transform duration-[1200ms] ease-[var(--ease-lux)] group-hover:scale-105" />
           </div>
           <p className="mt-3 font-serif text-xl">{c.name}</p>
         </Link>
@@ -199,29 +209,6 @@ function MobileDrawer({ open, onClose, categories, collections, signedIn }: { op
             </div>
           </motion.aside>
         </>
-      )}
-    </AnimatePresence>
-  );
-}
-
-function SearchOverlay({ open, onClose, onSubmit }: { open: boolean; onClose(): void; onSubmit(q: string): void }) {
-  const input = useRef<HTMLInputElement>(null);
-  const [q, setQ] = useState("");
-  useEffect(() => { if (open) setTimeout(() => input.current?.focus(), 50); }, [open]);
-  return (
-    <AnimatePresence>
-      {open && (
-        <motion.div role="dialog" aria-modal="true" aria-label="Search" className="fixed inset-0 z-[72] bg-ivory text-espresso" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <div className="container-x flex h-20 items-center justify-end"><button onClick={onClose} aria-label="Close search" className="grid h-11 w-11 place-items-center"><X size={24} strokeWidth={1.3} /></button></div>
-          <form className="container-x mx-auto mt-[12vh] max-w-3xl" onSubmit={(e) => { e.preventDefault(); if (q.trim()) onSubmit(q.trim()); }} role="search">
-            <label htmlFor="site-search" className="eyebrow">Search Zebella</label>
-            <div className="mt-4 flex items-center gap-4 border-b border-espresso pb-3">
-              <Search size={26} strokeWidth={1.2} aria-hidden />
-              <input id="site-search" ref={input} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Kurta, saree, lehenga…" className="w-full bg-transparent font-serif text-3xl outline-none placeholder:text-taupe sm:text-5xl" autoComplete="off" />
-            </div>
-            <p className="mt-4 text-sm text-taupe-deep">Press Enter to search</p>
-          </form>
-        </motion.div>
       )}
     </AnimatePresence>
   );

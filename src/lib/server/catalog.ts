@@ -1,6 +1,7 @@
 import "server-only";
 import { availableUnits, effectivePrice } from "../commerce/catalog-rules";
-import { isApiConfigured } from "../api/client";
+import { isApiConfigured, useMockApi } from "../api/client";
+import { mockCatalog } from "../mock/api";
 import {
   DEFAULT_HOMEPAGE, DEFAULT_SETTINGS,
   type Banner, type HomepageContent, type StoreSettings, type Testimonial,
@@ -17,6 +18,7 @@ const BASE = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
  * A missing/unreachable backend yields the fallback instead of crashing pages.
  */
 async function read<T>(path: string, fallback: T, tag: string): Promise<T> {
+  if (useMockApi) return (mockCatalog(path) as T | undefined) ?? fallback;
   if (!isApiConfigured()) return fallback;
   try {
     const res = await fetch(`${BASE}${path}`, { next: { revalidate: REVALIDATE, tags: [tag] } });

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Listing, ListingHeader } from "@/components/shop/Listing";
+import { collectionArt } from "@/lib/art";
 import { getCollections } from "@/lib/server/catalog";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -24,6 +25,6 @@ export default async function CollectionPage({ params, searchParams }: Props) {
   if (!collection) notFound();
   return (
     <Listing sp={await searchParams} base={{ collection: slug }} basePath={`/collections/${slug}`}
-      header={<ListingHeader eyebrow="Collection" title={collection.name} description={collection.description} crumbs={[{ label: "Home", href: "/" }, { label: "Collections", href: "/collections" }, { label: collection.name }]} />} />
+      header={<ListingHeader eyebrow="Collection" title={collection.name} image={collectionArt(collection.imageUrl, 0)} description={collection.description} crumbs={[{ label: "Home", href: "/" }, { label: "Collections", href: "/collections" }, { label: collection.name }]} />} />
   );
 }

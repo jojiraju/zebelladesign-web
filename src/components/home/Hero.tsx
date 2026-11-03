@@ -21,7 +21,13 @@ export function Hero({ hero }: { hero: HeroSlide }) {
   const mobile = hero.mobileImageUrl || (hero.imageUrl ? hero.imageUrl : "/art/hero-mobile.svg");
 
   return (
-    <section ref={ref} className="relative -mt-20 flex min-h-[100svh] items-end overflow-hidden bg-espresso text-ivory" aria-label="Featured campaign">
+    <>
+    {hero.textInImage && hero.imageUrl && (
+      <Link href={hero.ctaHref || "/shop"} aria-label={hero.heading} data-hero-banner className="relative hidden md:block">
+        <Image src={hero.imageUrl} alt={hero.heading} width={1983} height={793} priority sizes="100vw" className="h-auto w-full" />
+      </Link>
+    )}
+    <section ref={ref} className={`relative -mt-20 flex min-h-[100svh] items-end overflow-hidden bg-espresso text-ivory ${hero.textInImage && hero.imageUrl ? "md:hidden" : ""}`} aria-label="Featured campaign">
       <motion.div className="absolute inset-0" style={{ y, scale }}>
         <Image src={mobile} alt="" fill priority sizes="100vw" className="object-cover md:hidden" />
         <Image src={desktop} alt="" fill priority sizes="100vw" className="hidden object-cover md:block" />
@@ -57,5 +63,6 @@ export function Hero({ hero }: { hero: HeroSlide }) {
       </motion.div>
       <style>{`@keyframes scrollcue{0%{transform:translateY(-100%)}100%{transform:translateY(200%)}}`}</style>
     </section>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { ART } from "@/lib/art";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronLeft, ChevronRight, Expand, Play, X } from "lucide-react";
 import type { ProductImage } from "@/lib/types";
@@ -40,7 +41,7 @@ export function ProductGallery({ images, name, videoUrl }: { images: ProductImag
     return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", key); };
   }, [full, i, go]);
 
-  if (!slides.length) return <div className="aspect-[3/4] w-full bg-cream" />;
+  if (!slides.length) return <div className="relative aspect-[3/4] w-full overflow-hidden bg-cream"><Image src={ART.productPlaceholder} alt={name} fill priority sizes="(min-width:1024px) 45vw, 100vw" className="object-cover" /></div>;
   const cur = slides[i];
 
   const thumb = (s: (typeof slides)[number], n: number) => (
