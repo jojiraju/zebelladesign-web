@@ -100,17 +100,25 @@ export default async function AboutPage() {
       </section>
 
       {/* ---------- Process ---------- */}
-      <section className="mt-24 bg-gradient-to-b from-blush/40 to-transparent py-16 sm:mt-32 sm:py-24" aria-labelledby="process-h">
-        <div className="container-x">
-          <div className="mx-auto mb-12 max-w-xl text-center"><p className="eyebrow justify-center">How it&apos;s made</p><h2 id="process-h" className="mt-3 font-serif text-4xl sm:text-5xl">From sketch to your wardrobe</h2></div>
-          <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="container-x mt-24 sm:mt-32" aria-labelledby="process-h">
+        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-espresso via-[#3a2029] to-wine px-5 py-14 text-ivory shadow-[0_40px_90px_-50px_rgba(35,26,29,.8)] sm:px-10 sm:py-20 lg:px-14">
+          <div aria-hidden className="fx-drift pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-gold/20 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-20 h-80 w-80 rounded-full border border-ivory/10" />
+          <div className="relative mx-auto mb-14 max-w-2xl text-center">
+            <p className="eyebrow justify-center !text-rose-soft">How it&apos;s made</p>
+            <h2 id="process-h" className="mt-4 text-balance font-serif text-4xl leading-tight sm:text-5xl">From sketch to <span className="italic text-rose-soft">your wardrobe</span></h2>
+            <p className="mx-auto mt-4 max-w-md text-ivory/70">Four careful steps, every time — before a piece ever reaches you.</p>
+          </div>
+          <ol className="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            <span aria-hidden className="pointer-events-none absolute left-[12%] right-[12%] top-7 hidden border-t border-dashed border-ivory/25 lg:block" />
             {PROCESS.map(({ icon: Icon, title, text }, i) => (
-              <Reveal as="li" key={title} delay={i * 0.08}>
-                <div className={`${card} relative h-full p-6`}>
-                  <span className="absolute right-5 top-4 font-serif text-5xl text-blush">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="grid h-12 w-12 place-items-center rounded-full bg-espresso text-ivory"><Icon size={20} strokeWidth={1.5} aria-hidden /></span>
-                  <h3 className="mt-5 font-serif text-2xl">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-taupe-deep">{text}</p>
+              <Reveal as="li" key={title} delay={i * 0.1}>
+                <div className="group relative h-full rounded-3xl border border-ivory/10 bg-ivory/[0.06] p-6 pt-9 backdrop-blur-sm transition duration-500 hover:-translate-y-1.5 hover:border-rose-soft/40 hover:bg-ivory/[0.1] lg:mt-7">
+                  <span className="absolute -top-7 left-6 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-rose-soft to-gold-deep text-white shadow-[0_14px_30px_-10px_rgba(0,0,0,.6)] ring-4 ring-[#3a2029] transition duration-500 group-hover:scale-110"><Icon size={22} strokeWidth={1.5} aria-hidden /></span>
+                  <span aria-hidden className="absolute right-5 top-3 font-serif text-6xl leading-none text-transparent [-webkit-text-stroke:1px_rgba(253,248,246,.28)]">{String(i + 1).padStart(2, "0")}</span>
+                  <p className="text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-rose-soft">Step {i + 1}</p>
+                  <h3 className="mt-2 font-serif text-3xl">{title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-ivory/70">{text}</p>
                 </div>
               </Reveal>
             ))}

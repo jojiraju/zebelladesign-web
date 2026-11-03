@@ -5,9 +5,10 @@ import Image from "next/image";
 import { collectionArt } from "@/lib/art";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
-import { Heart, House, Menu, Search, ShoppingBag, User, X } from "lucide-react";
+import { Heart, House, Search, ShoppingBag, User } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { SearchOverlay } from "./SearchOverlay";
+import { MobileDrawer } from "./MobileDrawer";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -88,7 +89,13 @@ export function Header({ categories, collections }: { categories: Category[]; co
             {navItem({ id: "about", href: "/about", label: "About", active: pathname === "/about" })}
             {navItem({ id: "contact", href: "/contact", label: "Contact", active: pathname === "/contact" })}
           </motion.nav>
-          <button className={`${iconBtn} -ml-3 justify-self-start lg:hidden`} aria-label="Open menu" onClick={() => setDrawer(true)}><Menu size={22} strokeWidth={1.4} /></button>
+          <button className={`group/menu -ml-2 inline-flex h-11 items-center gap-2.5 justify-self-start rounded-full px-2 transition duration-300 hover:text-gold-deep active:scale-95 lg:hidden ${tone}`} aria-label="Open menu" onClick={() => setDrawer(true)}>
+            <span aria-hidden className="flex w-6 flex-col items-start gap-[7px]">
+              <span className="h-px w-full bg-current" />
+              <span className="h-px w-[58%] bg-current transition-all duration-300 group-hover/menu:w-full" />
+            </span>
+            <span className="text-[0.66rem] font-semibold uppercase tracking-[0.26em] max-[379px]:sr-only">Menu</span>
+          </button>
 
           <motion.div className="justify-self-center" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}><Logo light={transparent} /></motion.div>
 
@@ -144,7 +151,7 @@ export function Header({ categories, collections }: { categories: Category[]; co
         </AnimatePresence>
       </div>
 
-      <MobileDrawer open={drawer} onClose={() => setDrawer(false)} categories={categories} collections={collections} signedIn={!!user} />
+      <MobileDrawer open={drawer} onClose={() => setDrawer(false)} categories={categories} collections={collections} />
       <SearchOverlay open={search} onClose={() => setSearch(false)} categories={categories} />
     </header>
   );
@@ -170,46 +177,3 @@ function MegaTiles({ items }: { items: Collection[] }) {
   );
 }
 
-function MobileDrawer({ open, onClose, categories, collections, signedIn }: { open: boolean; onClose(): void; categories: Category[]; collections: Collection[]; signedIn: boolean }) {
-  const first = useRef<HTMLButtonElement>(null);
-  useEffect(() => { if (open) first.current?.focus(); }, [open]);
-  const link = "block py-3 font-serif text-3xl";
-  return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div className="fixed inset-0 z-[70] bg-espresso/50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
-          <motion.aside role="dialog" aria-modal="true" aria-label="Menu" className="fixed inset-y-0 left-0 z-[71] flex w-[88vw] max-w-sm flex-col overflow-y-auto bg-ivory p-6 text-espresso"
-            initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "tween", duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
-            <div className="flex items-center justify-between">
-              <Logo />
-              <button ref={first} onClick={onClose} aria-label="Close menu" className="grid h-11 w-11 place-items-center"><X size={22} strokeWidth={1.4} /></button>
-            </div>
-            <nav className="mt-8 flex-1" aria-label="Mobile">
-              <Link href="/shop" className={link}>Shop</Link>
-              <Link href="/shop?sort=newest" className={link}>New Arrivals</Link>
-              <Link href="/collections" className={link}>Collections</Link>
-              {categories.length > 0 && (
-                <div className="mb-3 ml-1 border-l border-line pl-4">
-                  {categories.map((c) => <Link key={c.id} href={`/categories/${c.slug}`} className="block py-1.5 text-sm text-taupe-deep">{c.name}</Link>)}
-                </div>
-              )}
-              {collections.length > 0 && (
-                <div className="mb-3 ml-1 border-l border-line pl-4">
-                  {collections.map((c) => <Link key={c.id} href={`/collections/${c.slug}`} className="block py-1.5 text-sm text-taupe-deep">{c.name}</Link>)}
-                </div>
-              )}
-              <Link href="/about" className={link}>About Us</Link>
-              <Link href="/contact" className={link}>Contact</Link>
-            </nav>
-            <div className="mt-6 flex flex-col gap-3 border-t border-line pt-6 text-sm uppercase tracking-[0.2em]">
-              <Link href={signedIn ? "/account" : "/login"}>{signedIn ? "My Account" : "Sign In / Register"}</Link>
-              <Link href="/account/wishlist">Wishlist</Link>
-              <Link href="/order-tracking">Track an order</Link>
-            </div>
-          </motion.aside>
-        </>
-      )}
-    </AnimatePresence>
-  );
-}

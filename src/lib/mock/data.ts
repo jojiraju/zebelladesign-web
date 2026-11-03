@@ -6,6 +6,7 @@ import type { Banner, HomepageContent, StoreSettings, Testimonial } from "../con
 import { DEFAULT_SETTINGS } from "../content";
 import type { Address, Category, Collection, Coupon, Order, Product, Variant } from "../types";
 import { CATEGORY_DEFS, COLLECTION_DEFS, COLORS, PRODUCT_SPECS } from "./specs";
+import { MOCK_POLICIES } from "./policies";
 import PHOTOS from "./photos.json";
 
 /** Slots that have a real/AI photo (managed by `npm run photos` / `npm run images`); everything else uses the SVG illustration. */
@@ -35,6 +36,24 @@ export const MOCK_COLLECTIONS: Collection[] = COLLECTION_DEFS.map((c, i) => ({
   id: c.slug, slug: c.slug, name: c.name, description: c.description, imageUrl: collectionImg(c.slug, MOCK_COLLECTION_ART[c.slug]), order: i, visible: true, featured: c.featured,
 }));
 
+const LENGTH: Record<string, string> = { anarkali: "48″", frock: "36″", salwar: "44″ (kurta)", cordset: "Top 20″ · Trouser 38″", gown: "54″" };
+const PIECES: Record<string, string[]> = {
+  anarkali: ["Anarkali", "Dupatta", "Bottom"], frock: ["Frock"], salwar: ["Kurta", "Salwar", "Dupatta"], cordset: ["Top", "Trousers"], gown: ["Gown"],
+};
+/** Structured product details (design, fabric, sizes, length, shipping, colours) in the same layout the client's reference site uses. */
+function detailsHtml(p: (typeof PRODUCT_SPECS)[number]): string {
+  const li = (a: string[]) => `<ul>${a.map((x) => `<li>${x}</li>`).join("")}</ul>`;
+  const colours = p.colors.map((c) => COLORS[c].name).join(", ");
+  return [
+    `<h3>Design details</h3>${li([p.desc])}`,
+    `<h3>Fabric details</h3>${li([...PIECES[p.sil].map((x, i) => `${x}: ${i === 0 ? p.fabric : "Matching " + p.fabric.toLowerCase()}`), "Lined for comfort"])}`,
+    `<h3>Sizes available</h3>${li(["S: 34″ bust", "M: 36″", "L: 38″", "XL: 40″", "Need a different fit? Custom sizing on request."])}`,
+    `<h3>Length</h3>${li([`${LENGTH[p.sil]} (can be customised upon request)`])}`,
+    `<h3>Shipping</h3>${li(["Free shipping across India on orders above ₹2,999", "Dispatched in 2–3 business days"])}`,
+    `<h3>Colours</h3>${li([colours])}`,
+  ].join("");
+}
+
 export const MOCK_PRODUCTS: Product[] = PRODUCT_SPECS.map((p, i) => {
   const variants: Variant[] = p.colors.flatMap((ck, ci) =>
     SIZES.map((size, si) => {
@@ -46,7 +65,7 @@ export const MOCK_PRODUCTS: Product[] = PRODUCT_SPECS.map((p, i) => {
   );
   return {
     id: p.slug, slug: p.slug, name: p.name, sku: p.code,
-    description: p.desc, fabric: p.fabric, care: "Dry clean recommended. Steam iron on low heat. Store on a padded hanger.",
+    description: detailsHtml(p), fabric: p.fabric, care: "Dry clean recommended. Steam iron on low heat. Store on a padded hanger.",
     categoryId: p.cat, categorySlug: p.cat, collectionIds: p.cols,
     images: [1, 2].map((n) => ({ url: productImg(p.slug, n), alt: `${p.name} — view ${n}` })),
     price: p.mrp * 100, salePrice: p.sale ? p.sale * 100 : null, variants,
@@ -69,12 +88,7 @@ export const MOCK_SETTINGS: StoreSettings = {
   social: { instagram: "https://www.instagram.com/", facebook: "https://www.facebook.com/", youtube: "https://www.youtube.com/" },
   footer: { description: "Contemporary ethnic and festive wear, designed with care and made to be remembered." },
   newsletter: { enabled: true, heading: "Join the Zebella list", consent: "By subscribing you agree to receive occasional emails about new collections. Unsubscribe anytime." },
-  policies: {
-    shipping: "<h2>Shipping policy</h2><p>Orders are dispatched within 2–3 business days. Standard delivery takes 5–8 business days across India. Shipping is free above ₹2,999.</p><p>You will receive tracking details by email as soon as your order ships.</p>",
-    returns: "<h2>Returns &amp; refunds</h2><p>Unworn items with tags can be returned within 7 days of delivery. Refunds are processed to the original payment method within 5–7 business days of receiving the return.</p><p>Customised and sale items are final sale.</p>",
-    privacy: "<h2>Privacy policy</h2><p>We collect only the information needed to process your order and improve your experience. We never sell your data. This is demo text — replace it with your final policy.</p>",
-    terms: "<h2>Terms &amp; conditions</h2><p>By using this site you agree to these terms. Prices are in INR and include GST. This is demo text — replace it with your final terms.</p>",
-  },
+  policies: MOCK_POLICIES,
   faq: [
     { q: "How do I find my size?", a: "<p>Use the size guide on each product page. For a custom fit, message us with your measurements.</p>" },
     { q: "How long does delivery take?", a: "<p>Standard delivery takes 5–8 business days across India.</p>" },

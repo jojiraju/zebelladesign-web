@@ -5,7 +5,7 @@ import { Providers } from "@/components/providers/Providers";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
+import { MobileBottomNav, SideNav } from "@/components/layout/MobileBottomNav";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { getCategories, getCollections, getSettings } from "@/lib/server/catalog";
 import { siteUrl } from "@/lib/site";
@@ -27,7 +27,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [settings, categories, collections] = await Promise.all([getSettings(), getCategories(), getCollections()]);
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
-      <body className="flex min-h-screen flex-col pb-24 lg:pb-0">
+      <body className="flex min-h-screen flex-col pb-24 min-[1440px]:pb-0">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-espresso focus:px-4 focus:py-2 focus:text-ivory">Skip to content</a>
         <Providers>
           <AnnouncementBar items={settings.announcements} />
@@ -35,6 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <main id="main" className="flex-1">{children}</main>
           <Footer settings={settings} categories={categories} />
           <MobileBottomNav />
+          <SideNav />
           <CartDrawer />
         </Providers>
       </body>

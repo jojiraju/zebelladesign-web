@@ -34,6 +34,8 @@ export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hid
   const variant = resolved.variant;
   const available = variant ? availableUnits(variant) : 0;
   const soldOutAll = product.variants.every((v) => availableUnits(v) <= 0);
+  const soldOutSel = !soldOutAll && !!variant && available <= 0; // chosen colour/size is out of stock
+  const unavailable = soldOutAll || soldOutSel;
 
   // Quantity is always clamped to what is available for the selected option.
   const maxQty = Math.max(1, Math.min(available || 1, MAX_QTY_PER_LINE));
@@ -100,19 +102,20 @@ export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hid
           <span className="w-10 text-center tabular-nums" aria-live="polite">{qty}</span>
           <button type="button" className="grid h-11 w-12 place-items-center rounded-full transition hover:bg-blush disabled:opacity-40" disabled={qty >= maxQty} onClick={() => setQty(qty + 1)} aria-label="Increase quantity"><Plus size={14} /></button>
         </div>
-        <p className={`text-sm ${soldOutAll ? "text-danger" : lowNote ? "text-gold-deep" : "text-ok"}`} aria-live="polite">
-          {soldOutAll ? "Sold out" : lowNote ?? (variant ? "In stock" : (needsSize(product) || needsColor(product)) ? "Select options" : "")}
+        <p className={`inline-flex items-center gap-2 text-sm ${unavailable ? "rounded-full bg-red-50 px-3 py-1 font-medium text-danger" : lowNote ? "text-gold-deep" : "text-ok"}`} aria-live="polite">
+          {unavailable ? "Out of stock" : lowNote ?? (variant ? "In stock" : (needsSize(product) || needsColor(product)) ? "Select options" : "")}
         </p>
       </div>
 
+      {soldOutSel && <p className="mt-3 text-sm text-taupe-deep">This colour and size is out of stock — try another option.</p>}
       {error && <p role="alert" className="mt-4 text-sm text-danger">{error}</p>}
 
       <div className="mt-8 flex flex-col gap-3">
-        <button type="button" className="btn btn-ghost !min-h-14 w-full !text-sm !normal-case !tracking-[0.08em]" disabled={soldOutAll || phase === "adding"} onClick={() => add(false)}>
-          {phase === "adding" ? <Loader2 size={16} className="animate-spin" /> : phase === "added" ? <><Check size={16} /> Added</> : soldOutAll ? "Sold out" : <>Add to Cart</>}
+        <button type="button" className="btn btn-ghost !min-h-14 w-full !text-sm !normal-case !tracking-[0.08em]" disabled={unavailable || phase === "adding"} onClick={() => add(false)}>
+          {phase === "adding" ? <Loader2 size={16} className="animate-spin" /> : phase === "added" ? <><Check size={16} /> Added</> : unavailable ? "Out of stock" : <>Add to Cart</>}
         </button>
         <div className="flex gap-3">
-          <button type="button" className="btn btn-solid !min-h-14 w-full flex-1 !text-sm !normal-case !tracking-[0.08em]" disabled={soldOutAll || phase === "adding"} onClick={() => add(true)}>Buy Now</button>
+          <button type="button" className="btn btn-solid !min-h-14 w-full flex-1 !text-sm !normal-case !tracking-[0.08em]" disabled={unavailable || phase === "adding"} onClick={() => add(true)}>Buy Now</button>
           {!hideWishlist && (
             <button type="button" onClick={() => { const added = wish.toggle(product.id); toast(added ? "Saved to your wishlist" : "Removed from wishlist"); }} aria-pressed={wished} aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
               className="btn btn-ghost !min-h-14 w-14 shrink-0 !px-0"><Heart size={18} className={`transition-all duration-300 ${wished ? "scale-110 fill-gold-deep text-gold-deep" : ""}`} /></button>

@@ -169,12 +169,12 @@ export function AddressesView() {
         )}
       </ul>
       {form && (
-        <div className={`${card} mt-6 grid max-w-2xl gap-4 p-6 sm:grid-cols-2 sm:p-8`}>
+        <div className={`${card} mt-6 grid gap-4 p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-3`}>
           {field("fullName", "Full name", { autoComplete: "name" })}{field("phone", "Mobile", { inputMode: "tel", autoComplete: "tel" })}
-          <div className="sm:col-span-2">{field("line1", "Address line 1", { autoComplete: "address-line1" })}</div>
-          <div className="sm:col-span-2">{field("line2", "Address line 2 (optional)", { autoComplete: "address-line2" })}</div>
+          <div className="sm:col-span-2 lg:col-span-3">{field("line1", "Address line 1", { autoComplete: "address-line1" })}</div>
+          <div className="sm:col-span-2 lg:col-span-3">{field("line2", "Address line 2 (optional)", { autoComplete: "address-line2" })}</div>
           {field("city", "City", { autoComplete: "address-level2" })}{field("state", "State", { autoComplete: "address-level1" })}{field("pincode", "PIN code", { inputMode: "numeric", maxLength: 6, autoComplete: "postal-code" })}
-          <div className="flex gap-3 sm:col-span-2"><button className="btn btn-solid" onClick={save}>Save address</button><button className="btn btn-ghost" onClick={() => { setForm(null); setErrors({}); }}>Cancel</button></div>
+          <div className="flex gap-3 sm:col-span-2 lg:col-span-3"><button className="btn btn-solid" onClick={save}>Save address</button><button className="btn btn-ghost" onClick={() => { setForm(null); setErrors({}); }}>Cancel</button></div>
         </div>
       )}
     </div>

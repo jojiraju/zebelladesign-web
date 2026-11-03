@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ART } from "@/lib/art";
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronLeft, ChevronRight, Expand, Play, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Expand, Play, X, ZoomIn } from "lucide-react";
 import type { ProductImage } from "@/lib/types";
 
 /**
@@ -44,17 +44,26 @@ export function ProductGallery({ images, name, videoUrl }: { images: ProductImag
   if (!slides.length) return <div className="relative aspect-[3/4] w-full overflow-hidden bg-cream"><Image src={ART.productPlaceholder} alt={name} fill priority sizes="(min-width:1024px) 45vw, 100vw" className="object-cover" /></div>;
   const cur = slides[i];
 
-  const thumb = (s: (typeof slides)[number], n: number) => (
-    <button key={n} onClick={() => setI(n)} aria-label={`Show ${s.type === "video" ? "video" : `image ${n + 1}`}`} aria-current={n === i}
-      className={`relative aspect-square w-16 shrink-0 overflow-hidden bg-cream outline-2 transition duration-300 lg:w-24 ${n === i ? "outline outline-espresso" : "hover:outline hover:outline-taupe"}`}>
-      {s.type === "image" ? <Image src={s.img.url} alt="" fill sizes="80px" className="object-cover" /> : <span className="grid h-full place-items-center"><Play size={18} /></span>}
-    </button>
-  );
+  const thumb = (s: (typeof slides)[number], n: number) => {
+    const on = n === i;
+    return (
+      <button key={n} onClick={() => setI(n)} aria-label={`Show ${s.type === "video" ? "video" : `image ${n + 1}`}`} aria-current={on}
+        className={`group relative aspect-[3/4] w-full shrink-0 overflow-hidden bg-cream outline-none transition duration-300 focus-visible:ring-2 focus-visible:ring-gold-deep ${on ? "shadow-[0_14px_28px_-14px_rgba(143,74,91,.7)] ring-2 ring-gold ring-offset-2 ring-offset-ivory" : "opacity-70 ring-1 ring-line hover:-translate-y-0.5 hover:opacity-100 hover:ring-gold/60"}`}>
+        {s.type === "image"
+          ? <Image src={s.img.url} alt="" fill sizes="96px" className="object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+          : <span className="grid h-full place-items-center bg-espresso text-ivory"><Play size={20} fill="currentColor" /></span>}
+        <span className={`absolute left-1.5 top-1.5 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[0.6rem] font-semibold backdrop-blur transition ${on ? "bg-gradient-to-br from-gold to-gold-deep text-white" : "bg-white/80 text-taupe-deep"}`}>{n + 1}</span>
+      </button>
+    );
+  };
 
   return (
-    <div className="grid gap-4 lg:sticky lg:top-24 lg:grid-cols-[6rem_1fr] lg:self-start">
+    <div className="relative z-20 grid gap-4 lg:sticky lg:top-24 lg:grid-cols-[6rem_1fr] lg:self-start">
       {/* desktop thumbs */}
-      <div className="no-scrollbar hidden max-h-[calc(100vh-8rem)] flex-col gap-2.5 overflow-y-auto lg:flex lg:self-start">{slides.map(thumb)}</div>
+      <div className="hidden lg:block lg:self-start">
+        <div className="no-scrollbar -m-1.5 flex max-h-[calc(100vh-10rem)] flex-col gap-3 overflow-y-auto p-1.5">{slides.map(thumb)}</div>
+        {slides.length > 1 && <p className="mt-3 text-center text-[0.68rem] font-medium uppercase tracking-[0.18em] text-taupe-deep tabular-nums" aria-live="polite">{i + 1} / {slides.length}</p>}
+      </div>
 
       <div>
         {/* mobile: native snap carousel */}
@@ -66,28 +75,35 @@ export function ProductGallery({ images, name, videoUrl }: { images: ProductImag
           ))}
         </div>
 
-        {/* desktop: main image with lens + zoom pane that opens over the details column */}
+        {/* desktop: lens on the photo + a magnified pane that opens to the right.
+            The gallery sits at z-20, so the pane is always painted ABOVE the details column (never interleaved with it). */}
         <div className="relative hidden lg:block lg:w-[min(100%,calc((100vh-7rem)*0.75))]">
           <div className="relative aspect-[3/4] cursor-crosshair overflow-hidden bg-cream"
-            onMouseMove={(e) => { const r = e.currentTarget.getBoundingClientRect(); setZoom({ x: Math.min(80, Math.max(20, ((e.clientX - r.left) / r.width) * 100)), y: Math.min(80, Math.max(20, ((e.clientY - r.top) / r.height) * 100)) }); }}
+            onMouseMove={(e) => { if (cur.type !== "image") return; const r = e.currentTarget.getBoundingClientRect(); setZoom({ x: Math.min(80, Math.max(20, ((e.clientX - r.left) / r.width) * 100)), y: Math.min(80, Math.max(20, ((e.clientY - r.top) / r.height) * 100)) }); }}
             onMouseLeave={() => setZoom(null)} onClick={() => cur.type === "image" && setFull(true)}>
             <AnimatePresence mode="wait">
               <motion.div key={i} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
                 {cur.type === "image" ? (
-                  <Image src={cur.img.url} alt={cur.img.alt || `${name} — view ${i + 1}`} fill priority sizes="45vw" className="object-cover" />
+                  <Image src={cur.img.url} alt={cur.img.alt || `${name} — view ${i + 1}`} fill priority sizes="(min-width:1024px) 45vw, 100vw" className="object-cover" />
                 ) : <video src={cur.url} controls playsInline className="h-full w-full object-cover" />}
               </motion.div>
             </AnimatePresence>
             {zoom && cur.type === "image" && (
-              <span aria-hidden className="pointer-events-none absolute h-[40%] w-[40%] rounded-sm border border-white/90 bg-white/35 shadow-[0_0_0_9999px_rgba(255,255,255,.15)] [background-image:radial-gradient(rgba(35,26,29,.35)_1.2px,transparent_1.2px)] [background-size:9px_9px]"
+              <span aria-hidden className="pointer-events-none absolute h-[40%] w-[40%] border border-white/90 bg-white/30 shadow-[0_0_0_9999px_rgba(255,255,255,.18)]"
                 style={{ left: `${zoom.x - 20}%`, top: `${zoom.y - 20}%` }} />
             )}
-            {cur.type === "image" && <span className="pointer-events-none absolute bottom-3 right-3 grid h-10 w-10 place-items-center bg-white/85"><Expand size={16} /></span>}
+            {cur.type === "image" && (
+              <>
+                <span aria-hidden className={`pointer-events-none absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-full bg-white/90 px-3.5 py-2 text-[0.68rem] font-medium uppercase tracking-[0.14em] text-taupe-deep shadow-sm backdrop-blur transition-opacity duration-300 ${zoom ? "opacity-0" : "opacity-100"}`}><ZoomIn size={14} />Hover to zoom</span>
+                <span className="pointer-events-none absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 shadow-sm"><Expand size={16} /></span>
+              </>
+            )}
           </div>
+
           <AnimatePresence>
             {zoom && cur.type === "image" && (
-              <motion.div aria-hidden initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                className="pointer-events-none absolute left-full top-0 z-30 ml-8 aspect-[3/4] w-full overflow-hidden bg-cream shadow-[0_20px_60px_-25px_rgba(0,0,0,.45)] lg:block">
+              <motion.div aria-hidden initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
+                className="pointer-events-none absolute bottom-0 left-full top-0 z-50 ml-8 w-[calc(100%+3.6rem)] overflow-hidden border border-line bg-white shadow-[0_30px_80px_-30px_rgba(35,26,29,.55)]">
                 <Image src={cur.img.url} alt="" fill sizes="60vw" className="object-cover" style={{ transform: `scale(2.5) translate(${50 - zoom.x}%, ${50 - zoom.y}%)` }} />
               </motion.div>
             )}

@@ -62,6 +62,8 @@ export default async function ProductPage({ params }: Props) {
     },
   ];
 
+  // Product-page summary of a policy: the intro plus its first two sections, cut on a tag boundary.
+  const brief = (h?: string) => h?.split(/(?=<h3>)/).slice(0, 3).join("");
   const detail = (title: string, body?: string, open = false) => body ? (
     <details open={open} className="group border-t border-line first:border-t-0">
       <summary className="flex cursor-pointer list-none items-center justify-between py-5 text-sm font-medium uppercase tracking-[0.2em] transition-colors hover:text-gold-deep">{title}<ChevronDown size={18} className="transition-transform duration-300 group-open:rotate-180" aria-hidden /></summary>
@@ -100,8 +102,8 @@ export default async function ProductPage({ params }: Props) {
               {detail("Details", p.description, true)}
               {detail("Fabric", p.fabric)}
               {detail("Care instructions", p.care)}
-              {detail("Shipping", settings.policies.shipping?.slice(0, 600))}
-              {detail("Returns & refunds", settings.policies.returns?.slice(0, 600))}
+              {detail("Shipping", brief(settings.policies.shipping))}
+              {detail("Returns & refunds", brief(settings.policies.returns))}
             </div>
           </div>
         </div>
