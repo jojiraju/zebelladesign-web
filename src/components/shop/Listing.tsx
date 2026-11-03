@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
+import { ArrowDown } from "lucide-react";
 import { FilterPanel } from "./FilterPanel";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { EmptyState } from "@/components/ui/Skeletons";
@@ -36,7 +37,7 @@ export async function Listing({ base, sp, basePath, header }: { base: ProductFil
   return (
     <div className="container-x pb-8 pt-10 sm:pt-16">
       {header}
-      <div className="mt-10">
+      <div id="products" className="mt-10 scroll-mt-28">
         <Suspense>
           <FilterPanel facets={result.facets} total={result.total}>
             {result.items.length ? <ProductGrid products={result.items.map(toPublicProduct)} cols={3} priorityFirst={4} /> : (
@@ -60,19 +61,42 @@ export async function Listing({ base, sp, basePath, header }: { base: ProductFil
 }
 
 export function ListingHeader({ eyebrow, title, description, crumbs, image }: { eyebrow?: string; title: string; description?: string; image?: string; crumbs?: { label: string; href?: string }[] }) {
+  const trail = crumbs && (
+    <nav aria-label="Breadcrumb" className="mb-6 text-xs uppercase tracking-[0.18em] text-taupe-deep">
+      <ol className="flex flex-wrap gap-2">
+        {crumbs.map((c, i) => <li key={i} className="flex gap-2">{c.href ? <Link className="link-underline" href={c.href}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}{i < crumbs.length - 1 && <span aria-hidden>/</span>}</li>)}
+      </ol>
+    </nav>
+  );
+
+  if (!image) {
+    return (
+      <header>
+        {trail}
+        {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
+        <h1 className="font-serif text-5xl leading-none sm:text-7xl">{title}</h1>
+        {description && <p className="mt-5 max-w-xl text-taupe-deep">{description}</p>}
+      </header>
+    );
+  }
+
+  // Banner: copy on the left, photo on the right (anchored to the top so faces are never cropped out).
   return (
     <header>
-      {crumbs && (
-        <nav aria-label="Breadcrumb" className="mb-6 text-xs uppercase tracking-[0.18em] text-taupe-deep">
-          <ol className="flex flex-wrap gap-2">
-            {crumbs.map((c, i) => <li key={i} className="flex gap-2">{c.href ? <Link className="link-underline" href={c.href}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}{i < crumbs.length - 1 && <span aria-hidden>/</span>}</li>)}
-          </ol>
-        </nav>
-      )}
-      {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-      <h1 className="font-serif text-5xl leading-none sm:text-7xl">{title}</h1>
-      {description && <p className="mt-5 max-w-xl text-taupe-deep">{description}</p>}
-      {image && <div className="relative mt-8 aspect-[21/7] w-full overflow-hidden rounded-2xl bg-cream"><Image src={image} alt="" fill priority sizes="100vw" className="object-cover" /></div>}
+      {trail}
+      <div className="relative grid overflow-hidden rounded-[2rem] bg-gradient-to-br from-blush via-ivory to-cream shadow-[0_30px_70px_-45px_rgba(143,74,91,.6)] ring-1 ring-line md:min-h-[27rem] md:grid-cols-[0.85fr_1.15fr]">
+        <div aria-hidden className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-rose-soft/30 blur-2xl" />
+        <div className="relative flex flex-col justify-center px-6 py-9 sm:px-9 md:py-12 lg:px-12">
+          {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
+          <h1 className="font-serif text-5xl leading-[0.95] sm:text-6xl lg:text-7xl">{title}</h1>
+          {description && <p className="mt-5 max-w-md leading-7 text-taupe-deep">{description}</p>}
+          <a href="#products" className="btn btn-solid mt-8 w-fit">Shop the edit <ArrowDown size={15} aria-hidden /></a>
+        </div>
+        <div className="relative aspect-[4/5] md:aspect-auto">
+          <Image src={image} alt="" fill priority sizes="(min-width:768px) 48vw, 100vw" className="object-cover object-top" />
+          <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 hidden w-24 bg-gradient-to-r from-ivory/70 to-transparent md:block" />
+        </div>
+      </div>
     </header>
   );
 }

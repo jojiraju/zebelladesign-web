@@ -5,7 +5,7 @@ import Image from "next/image";
 import { collectionArt } from "@/lib/art";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
-import { Heart, House, Search, ShoppingBag, User } from "lucide-react";
+import { ArrowRight, Heart, House, Search, ShoppingBag, User } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { SearchOverlay } from "./SearchOverlay";
 import { MobileDrawer } from "./MobileDrawer";
@@ -119,29 +119,18 @@ export function Header({ categories, collections }: { categories: Category[]; co
         <AnimatePresence>
           {mega && (
             <motion.div key={mega} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}
-              className="absolute inset-x-0 top-full hidden border-t border-line bg-ivory shadow-xl lg:block" onMouseEnter={() => openMega(mega)}>
-              <div className="container-x grid grid-cols-12 gap-10 py-10 text-espresso">
+              className="absolute inset-x-0 top-full hidden rounded-b-[2rem] border-t border-line bg-gradient-to-b from-ivory to-[#f8eaec] shadow-[0_40px_60px_-30px_rgba(35,26,29,.35)] lg:block" onMouseEnter={() => openMega(mega)}
+              // Close on any link click: the route-change effect misses links that keep the same pathname (e.g. /shop -> /shop).
+              onClick={(e) => { if ((e.target as HTMLElement).closest("a")) { clearTimeout(closeTimer.current); setMega(null); setHot(null); (document.activeElement as HTMLElement | null)?.blur(); } }}>
+              <div className="container-x grid grid-cols-12 gap-10 py-9 text-espresso">
                 {mega === "shop" ? (
                   <>
-                    <div className="col-span-3">
-                      <p className="eyebrow mb-5">Categories</p>
-                      <ul className="space-y-3">
-                        <li><Link href="/shop" className="link-underline text-sm">All products</Link></li>
-                        {categories.map((c) => <li key={c.id}><Link href={`/categories/${c.slug}`} className="link-underline text-sm">{c.name}</Link></li>)}
-                      </ul>
-                      {categories.length === 0 && <p className="text-sm text-taupe-deep">Categories appear here once added in the CMS.</p>}
-                    </div>
+                    <MegaList title="Shop by category" links={[{ href: "/shop", label: "All products" }, ...categories.map((c) => ({ href: `/categories/${c.slug}`, label: c.name }))]} empty={categories.length === 0 ? "Categories appear here once added in the CMS." : undefined} />
                     <MegaTiles items={collections.slice(0, 3)} />
                   </>
                 ) : (
                   <>
-                    <div className="col-span-3">
-                      <p className="eyebrow mb-5">Collections</p>
-                      <ul className="space-y-3">
-                        {collections.map((c) => <li key={c.id}><Link href={`/collections/${c.slug}`} className="link-underline text-sm">{c.name}</Link></li>)}
-                        <li><Link href="/collections" className="link-underline text-sm text-gold-deep">View all</Link></li>
-                      </ul>
-                    </div>
+                    <MegaList title="Collections" links={[...collections.map((c) => ({ href: `/collections/${c.slug}`, label: c.name })), { href: "/collections", label: "View all", accent: true }]} />
                     <MegaTiles items={collections.slice(0, 3)} />
                   </>
                 )}
@@ -161,19 +150,42 @@ const Dot = ({ n }: { n: number }) => (
   <span className="absolute right-0.5 top-1 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-gradient-to-br from-gold to-gold-deep px-1 text-[0.62rem] shadow-sm font-medium leading-none text-white" aria-hidden>{n > 99 ? "99+" : n}</span>
 );
 
+function MegaList({ title, links, empty }: { title: string; links: { href: string; label: string; accent?: boolean }[]; empty?: string }) {
+  return (
+    <div className="col-span-3">
+      <p className="eyebrow mb-5">{title}</p>
+      <ul>
+        {links.map((l) => (
+          <li key={l.href}>
+            <Link href={l.href} className={`group/row flex items-center justify-between border-b border-line/70 py-3 font-serif text-xl transition-colors duration-300 hover:text-gold-deep ${l.accent ? "text-gold-deep" : ""}`}>
+              <span className="transition-transform duration-300 group-hover/row:translate-x-1.5">{l.label}</span>
+              <ArrowRight size={16} className="-translate-x-2 opacity-0 transition-all duration-300 group-hover/row:translate-x-0 group-hover/row:opacity-100" aria-hidden />
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {empty && <p className="text-sm text-taupe-deep">{empty}</p>}
+    </div>
+  );
+}
+
 function MegaTiles({ items }: { items: Collection[] }) {
   if (!items.length) return <div className="col-span-9" />;
   return (
-    <div className="col-span-9 grid grid-cols-3 gap-6">
+    <div className="col-span-9 grid grid-cols-3 gap-5">
       {items.map((c, i) => (
-        <Link key={c.id} href={`/collections/${c.slug}`} className="group block">
-          <div className="relative aspect-[4/5] overflow-hidden bg-cream">
-            <Image src={collectionArt(c.imageUrl, i)} alt="" fill sizes="25vw" className="object-cover transition-transform duration-[1200ms] ease-[var(--ease-lux)] group-hover:scale-105" />
-          </div>
-          <p className="mt-3 font-serif text-xl">{c.name}</p>
+        <Link key={c.id} href={`/collections/${c.slug}`} className="group relative block h-[19rem] overflow-hidden rounded-3xl bg-cream shadow-[0_24px_40px_-30px_rgba(35,26,29,.6)]">
+          <Image src={collectionArt(c.imageUrl, i)} alt="" fill sizes="25vw" className="object-cover object-top transition-transform duration-[1400ms] ease-[var(--ease-lux)] group-hover:scale-105" />
+          <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-espresso/80 via-espresso/10 to-transparent" />
+          <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-ivory">
+            <span>
+              <span className="block text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-rose-soft">Collection</span>
+              <span className="mt-1 block font-serif text-2xl leading-tight">{c.name}</span>
+            </span>
+            <span aria-hidden className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ivory/90 text-espresso transition duration-300 group-hover:-rotate-45 group-hover:bg-white"><ArrowRight size={16} /></span>
+          </span>
         </Link>
       ))}
     </div>
   );
 }
-

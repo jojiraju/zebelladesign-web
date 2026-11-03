@@ -9,7 +9,7 @@ import { MAX_QTY_PER_LINE, availableUnits, needsColor, needsSize, resolveVariant
 import type { Product } from "@/lib/types";
 
 /** Variant picker + quantity + Add to Bag / Buy Now. Used on the product page and in Quick View. */
-export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hideWishlist = false }: { product: Product; sizeGuide?: React.ReactNode; deliveryNote?: string; onAdded?: () => void; hideWishlist?: boolean }) {
+export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hideWishlist = false, compact = false }: { product: Product; sizeGuide?: React.ReactNode; deliveryNote?: string; onAdded?: () => void; hideWishlist?: boolean; compact?: boolean }) {
   const cart = useCart();
   const wish = useWishlist();
   const toast = useToast();
@@ -68,7 +68,7 @@ export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hid
   return (
     <div>
       {colors.length > 0 && (
-        <fieldset className="mt-8">
+        <fieldset className={compact ? "mt-5" : "mt-8"}>
           <legend className="label">Colour{color && <span className="ml-2 normal-case tracking-normal text-espresso">{color}</span>}</legend>
           <div className="flex flex-wrap gap-3">
             {colors.map((c) => (
@@ -83,7 +83,7 @@ export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hid
       )}
 
       {sizes.length > 0 && (
-        <fieldset className="mt-7">
+        <fieldset className={compact ? "mt-4" : "mt-7"}>
           <legend className="label flex w-full items-center justify-between"><span>Size{size && <span className="ml-2 normal-case tracking-normal text-espresso">{size}</span>}</span>{sizeGuide}</legend>
           <div className="flex flex-wrap gap-2">
             {sizes.map((s) => (
@@ -96,7 +96,7 @@ export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hid
         </fieldset>
       )}
 
-      <div className="mt-8 flex flex-wrap items-center gap-5">
+      <div className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center gap-5`}>
         <div className="inline-flex items-center rounded-full border border-espresso/30 bg-white/60" role="group" aria-label="Quantity">
           <button type="button" className="grid h-11 w-12 place-items-center rounded-full transition hover:bg-blush disabled:opacity-40" disabled={qty <= 1} onClick={() => setQty(qty - 1)} aria-label="Decrease quantity"><Minus size={14} /></button>
           <span className="w-10 text-center tabular-nums" aria-live="polite">{qty}</span>
@@ -110,15 +110,15 @@ export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hid
       {soldOutSel && <p className="mt-3 text-sm text-taupe-deep">This colour and size is out of stock — try another option.</p>}
       {error && <p role="alert" className="mt-4 text-sm text-danger">{error}</p>}
 
-      <div className="mt-8 flex flex-col gap-3">
-        <button type="button" className="btn btn-ghost !min-h-14 w-full !text-sm !normal-case !tracking-[0.08em]" disabled={unavailable || phase === "adding"} onClick={() => add(false)}>
+      <div className={`${compact ? "mt-4 flex-row items-stretch gap-2" : "mt-8 flex-col gap-3"} flex`}>
+        <button type="button" className={`btn btn-ghost !min-h-12 ${compact ? "min-w-0 flex-1 !px-3" : "w-full"} !text-sm !normal-case !tracking-[0.08em]`} disabled={unavailable || phase === "adding"} onClick={() => add(false)}>
           {phase === "adding" ? <Loader2 size={16} className="animate-spin" /> : phase === "added" ? <><Check size={16} /> Added</> : unavailable ? "Out of stock" : <>Add to Cart</>}
         </button>
-        <div className="flex gap-3">
-          <button type="button" className="btn btn-solid !min-h-14 w-full flex-1 !text-sm !normal-case !tracking-[0.08em]" disabled={unavailable || phase === "adding"} onClick={() => add(true)}>Buy Now</button>
+        <div className={compact ? "contents" : "flex gap-3"}>
+          <button type="button" className={`btn btn-solid !min-h-12 ${compact ? "min-w-0 !px-3" : "w-full"} flex-1 !text-sm !normal-case !tracking-[0.08em]`} disabled={unavailable || phase === "adding"} onClick={() => add(true)}>Buy Now</button>
           {!hideWishlist && (
             <button type="button" onClick={() => { const added = wish.toggle(product.id); toast(added ? "Saved to your wishlist" : "Removed from wishlist"); }} aria-pressed={wished} aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-              className="btn btn-ghost !min-h-14 w-14 shrink-0 !px-0"><Heart size={18} className={`transition-all duration-300 ${wished ? "scale-110 fill-gold-deep text-gold-deep" : ""}`} /></button>
+              className={`btn btn-ghost !min-h-12 shrink-0 !px-0 ${compact ? "w-12" : "w-14"}`}><Heart size={18} className={`transition-all duration-300 ${wished ? "scale-110 fill-gold-deep text-gold-deep" : ""}`} /></button>
           )}
         </div>
       </div>

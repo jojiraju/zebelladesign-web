@@ -58,7 +58,7 @@ export function ProductGallery({ images, name, videoUrl }: { images: ProductImag
   };
 
   return (
-    <div className="relative z-20 grid gap-4 lg:sticky lg:top-24 lg:grid-cols-[6rem_1fr] lg:self-start">
+    <div className="relative z-20 grid gap-4 lg:sticky lg:top-24 lg:grid-cols-[5.5rem_minmax(0,1fr)] lg:self-start">
       {/* desktop thumbs */}
       <div className="hidden lg:block lg:self-start">
         <div className="no-scrollbar -m-1.5 flex max-h-[calc(100vh-10rem)] flex-col gap-3 overflow-y-auto p-1.5">{slides.map(thumb)}</div>
@@ -77,8 +77,8 @@ export function ProductGallery({ images, name, videoUrl }: { images: ProductImag
 
         {/* desktop: lens on the photo + a magnified pane that opens to the right.
             The gallery sits at z-20, so the pane is always painted ABOVE the details column (never interleaved with it). */}
-        <div className="relative hidden lg:block lg:w-[min(100%,calc((100vh-7rem)*0.75))]">
-          <div className="relative aspect-[3/4] cursor-crosshair overflow-hidden bg-cream"
+        <div className="relative hidden lg:block lg:w-full">
+          <div className="relative aspect-[4/5] cursor-crosshair overflow-hidden bg-cream"
             onMouseMove={(e) => { if (cur.type !== "image") return; const r = e.currentTarget.getBoundingClientRect(); setZoom({ x: Math.min(80, Math.max(20, ((e.clientX - r.left) / r.width) * 100)), y: Math.min(80, Math.max(20, ((e.clientY - r.top) / r.height) * 100)) }); }}
             onMouseLeave={() => setZoom(null)} onClick={() => cur.type === "image" && setFull(true)}>
             <AnimatePresence mode="wait">

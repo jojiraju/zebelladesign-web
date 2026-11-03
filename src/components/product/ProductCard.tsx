@@ -18,7 +18,9 @@ export function ProductCard({ product, priority = false, sizes = "(min-width:102
   const toast = useToast();
   const [quick, setQuick] = useState(false);
   const wished = wish.has(product.id);
-  const [img1, img2] = product.images;
+  const [img1, second] = product.images;
+  // Hover swaps to the 2nd view, but only when it's the same kind of picture (no photo <-> illustration mix).
+  const img2 = second && img1 && second.url.endsWith(".svg") === img1.url.endsWith(".svg") ? second : undefined;
   const colors = [...new Map(product.variants.filter((v) => v.color).map((v) => [v.color!, v.colorHex])).entries()];
   const soldOut = totalAvailable(product) <= 0;
   const badge = soldOut ? "Sold out" : product.newArrival ? "New" : product.bestSeller ? "Best seller" : null;

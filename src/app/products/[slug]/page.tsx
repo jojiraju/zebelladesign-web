@@ -84,9 +84,9 @@ export default async function ProductPage({ params }: Props) {
             <li aria-current="page" className="text-espresso">{p.name}</li>
           </ol>
         </nav>
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-12 xl:gap-16">
           <ProductGallery images={p.images} name={p.name} videoUrl={p.videoUrl} />
-          <div>
+          <div className="min-w-0">
             {p.isDemo && <p className="mb-4 inline-block border border-gold px-3 py-1 text-[0.65rem] uppercase tracking-[0.22em] text-gold-deep">Demo product — development data</p>}
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-taupe-deep">{p.categorySlug.replace(/-/g, " ")}</p>
             <div className="mt-2 flex items-start justify-between gap-4">
