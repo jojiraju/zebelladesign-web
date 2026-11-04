@@ -7,13 +7,11 @@ import { AuthIllustration } from "./AuthIllustration";
 import { Logo } from "@/components/ui/Logo";
 import { authApi } from "@/lib/api/auth";
 import { useMockApi } from "@/lib/api/client";
+import { safeNext } from "@/lib/safe-next";
 import { authMessage, useAuth } from "@/components/providers/AuthProvider";
 
 type Mode = "login" | "register" | "forgot" | "reset";
 type Field = "name" | "username" | "email" | "password" | "confirm";
-
-/** Only allow same-site relative redirects (prevents open-redirect abuse via ?next=). */
-export const safeNext = (n: string | null) => (n && n.startsWith("/") && !n.startsWith("//") ? n : "/account");
 
 const USERNAME = /^[A-Za-z0-9._-]{3,30}$/;
 

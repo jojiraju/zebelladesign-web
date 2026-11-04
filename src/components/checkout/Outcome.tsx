@@ -7,7 +7,9 @@ import { ART } from "@/lib/art";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useCart } from "@/components/providers/CartProvider";
 import { apiJson } from "@/lib/api/client";
+import { consumeCheckout } from "@/lib/checkout-marker";
 import { formatINR } from "@/lib/commerce/money";
+import { isPaymentSettled, orderStatusLabel } from "@/lib/commerce/order-status";
 import { RetryPaymentButton } from "./RetryPayment";
 import type { Order } from "@/lib/types";
 
@@ -28,20 +30,49 @@ export function SuccessView({ orderId }: { orderId: string }) {
 
   useEffect(() => {
     if (!user) return;
-    // Poll GET /orders/:id until the server reports the payment as received.
+    // Poll GET /orders/:id until the server reports an outcome (giving up after a few minutes).
     let live = true;
     const load = () => apiJson<Order>(`/orders/${encodeURIComponent(orderId)}`, { method: "GET" })
-      .then((o) => { if (live) setOrder(o); }).catch(() => undefined);
-    void load();
+      .then((o) => {
+        if (!live) return;
+        setOrder(o);
+        if (isPaymentSettled(o)) clearInterval(poll);
+      }).catch(() => undefined);
     const poll = setInterval(load, 3_000);
+    const giveUp = setTimeout(() => clearInterval(poll), 300_000);
     const t = setTimeout(() => setTimedOut(true), 45_000);
-    return () => { live = false; clearInterval(poll); clearTimeout(t); };
+    void load();
+    return () => { live = false; clearInterval(poll); clearTimeout(giveUp); clearTimeout(t); };
   }, [user, orderId]);
 
   const paid = order?.paymentStatus === "paid";
-  useEffect(() => { if (paid) cart.clear(); }, [paid]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Only empties the bag this order was created from, not whatever is in it when an old confirmation is reopened.
+  useEffect(() => { if (paid && consumeCheckout(orderId, cart.items)) cart.clear(); }, [paid, orderId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!ready) return null;
+
+  if (!user) return (
+    <div className="mx-auto max-w-xl py-16 sm:py-24">
+      <div className={`${card} px-6 py-12 text-center sm:px-10`}>
+        <h1 className="font-serif text-3xl sm:text-4xl">Sign in to see your order</h1>
+        <p className="mt-4 text-taupe-deep">Your order details are available once you sign in to your account.</p>
+        <Link href={`/login?next=${encodeURIComponent(`/checkout/success?order=${orderId}`)}`} className="btn btn-solid mt-8">Sign in</Link>
+      </div>
+    </div>
+  );
+
+  if (order?.paymentStatus === "failed") return <FailedView orderId={order.fulfillmentStatus === "cancelled" ? undefined : order.id} email={order.email} />;
+
+  if (order && !paid && isPaymentSettled(order)) return (
+    <div className="mx-auto max-w-xl py-16 sm:py-24">
+      <div className={`${card} px-6 py-12 text-center sm:px-10`}>
+        <p className="eyebrow">Order {order.id}</p>
+        <h1 className="mt-3 font-serif text-3xl sm:text-4xl">{orderStatusLabel(order)}</h1>
+        <p className="mt-4 text-taupe-deep">This order has been updated since it was placed. See your order for the details.</p>
+        <Link href={`/account/orders/${order.id}`} className="btn btn-ghost mt-8">View order</Link>
+      </div>
+    </div>
+  );
 
   if (paid && order) {
     const a = order.shippingAddress;

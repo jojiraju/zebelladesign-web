@@ -74,5 +74,3 @@ export const PRODUCT_SPECS: ProductSpec[] = [
   { slug: "christmas-gown-red", name: "Christmas Gown", code: "ZB-GN-503", cat: "gowns", cols: ["christmas-collection", "festive-wear"], sil: "gown", colors: ["red", "leaf"], pattern: "dots", mrp: 5499, sale: 4399, flags: "nb", fabric: "Velvet blend", desc: "A rich red gown with gold accents — made for holiday parties.", sold: 95 },
   { slug: "pleated-gown-dusty-rose", name: "Pleated Gown", code: "ZB-GN-504", cat: "gowns", cols: ["festive-wear"], sil: "gown", colors: ["rose", "mint", "ivory"], pattern: "stripes", mrp: 5299, flags: "", fabric: "Chiffon", desc: "Soft pleats and a floating chiffon skirt in a romantic dusty rose.", sold: 31 },
 ];
-
-export const MOCK_COUPON_NOTE = "Demo mode — no real coupons";

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ArrowRight, Loader2 } from "lucide-react";
-import { apiFetch } from "@/lib/api/client";
+import { apiJson, friendlyError } from "@/lib/api/client";
 
 type State = { kind: "idle" } | { kind: "loading" } | { kind: "done"; text: string } | { kind: "error"; text: string };
 
@@ -17,13 +17,11 @@ export function NewsletterForm({ consent, dark = false }: { consent?: string; da
     if (!agree) return setS({ kind: "error", text: "Please tick the consent box to subscribe." });
     setS({ kind: "loading" });
     try {
-      const res = await apiFetch("/newsletter", { method: "POST", body: JSON.stringify({ email, consent: true, company: hp }) });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) return setS({ kind: "error", text: data.error ?? "We couldn't subscribe you. Please try again." });
+      const data = await apiJson<{ status?: string }>("/newsletter", { json: { email, consent: true, company: hp } });
       setS({ kind: "done", text: data.status === "already_subscribed" ? "You're already on the list — thank you!" : "Thank you — you're subscribed." });
       setEmail("");
-    } catch {
-      setS({ kind: "error", text: "Network problem. Please try again." });
+    } catch (e) {
+      setS({ kind: "error", text: friendlyError(e, "Network problem. Please try again.") });
     }
   }
 

@@ -58,6 +58,15 @@ export async function apiJson<T>(path: string, init: RequestInit & { json?: unkn
   const { json, ...rest } = init;
   const res = await apiFetch(path, json === undefined ? rest : { ...rest, method: rest.method ?? "POST", body: JSON.stringify(json) });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(data.error ?? data.detail ?? "Something went wrong. Please try again.", res.status, data.code);
+  if (!res.ok) {
+    // FastAPI validation errors put a list in `detail`, which is not a customer-facing message.
+    const message = [data.error, data.detail].find((m) => typeof m === "string" && m) as string | undefined;
+    throw new ApiError(message ?? "Something went wrong. Please try again.", res.status, data.code);
+  }
   return data as T;
+}
+
+/** Message safe to show a customer: our own errors as written, the fallback for raw network or runtime failures. */
+export function friendlyError(e: unknown, fallback: string): string {
+  return e instanceof Error && !(e instanceof TypeError) ? e.message : fallback;
 }

@@ -7,7 +7,8 @@ import { ArrowLeft, ArrowRight, Check, ChevronDown, CircleAlert, Loader2, Lock, 
 import { ART } from "@/lib/art";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useCart } from "@/components/providers/CartProvider";
-import { apiFetch, useMockApi } from "@/lib/api/client";
+import { apiJson, friendlyError, useMockApi } from "@/lib/api/client";
+import { rememberCheckout } from "@/lib/checkout-marker";
 import { useQuote } from "@/lib/use-quote";
 import { formatINR } from "@/lib/commerce/money";
 import { addressSchema } from "@/lib/validation";
@@ -181,20 +182,17 @@ export function CheckoutFlow({ methods }: { methods: ShippingMethod[] }) {
     if (key.current.sig !== sig) key.current = { sig, id: crypto.randomUUID().replace(/-/g, "") };
     setPaying(true); setPayError(null);
     try {
-      const res = await apiFetch("/checkout", {
-        method: "POST",
-        body: JSON.stringify({ items: cart.items, couponCode: cart.couponCode || undefined, idempotencyKey: key.current.id, email, shippingAddress: ship, billingAddress: sameBill ? undefined : bill, shippingMethodId: methodId }),
+      const session = await apiJson<PaymentSession>("/checkout", {
+        json: { items: cart.items, couponCode: cart.couponCode || undefined, idempotencyKey: key.current.id, email, shippingAddress: ship, billingAddress: sameBill ? undefined : bill, shippingMethodId: methodId },
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "We couldn't start your payment.");
-      const session = data as PaymentSession;
       setLastOrder(session.orderId);
+      rememberCheckout(session.orderId, cart.items);
       const r = await pay(session, { name: ship.fullName, email, contact: ship.phone });
       if (r.state === "paid" || r.state === "pending") { cart.clear(); router.push(`/checkout/success?order=${session.orderId}`); return; }
       if (r.state === "failed") { setPayError(r.message); router.push(`/checkout/failed?order=${session.orderId}&reason=${encodeURIComponent(r.message)}`); return; }
       setPayError("Payment was cancelled. Your bag is saved — you can try again whenever you're ready.");
     } catch (e) {
-      setPayError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
+      setPayError(friendlyError(e, "We couldn't start your payment. Please check your connection and try again."));
     } finally { setPaying(false); }
   }
 

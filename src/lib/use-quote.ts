@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { apiFetch, isApiConfigured } from "@/lib/api/client";
+import { apiJson, friendlyError, isApiConfigured } from "@/lib/api/client";
 import type { CartItemInput, Quote } from "@/lib/types";
 
 export interface QuoteState {
@@ -17,22 +17,21 @@ export function useQuote(items: CartItemInput[], couponCode: string, shippingMet
   const sig = JSON.stringify([items, couponCode, shippingMethodId]);
 
   useEffect(() => {
+    const mine = ++seq.current; // also cancels a request still in flight when the bag was just emptied
     if (items.length === 0) {
       setState({ quote: null, loading: false, error: null, configured: true });
       return;
     }
-    const mine = ++seq.current;
     setState((s) => ({ ...s, loading: true }));
     const t = setTimeout(async () => {
       try {
-        const res = await apiFetch("/cart/quote", { method: "POST", body: JSON.stringify({ items, couponCode: couponCode || undefined, shippingMethodId }) });
-        const data = await res.json();
+        const data = await apiJson<{ quote: Quote; configured?: boolean }>("/cart/quote", { json: { items, couponCode: couponCode || undefined, shippingMethodId } });
         if (mine !== seq.current) return; // a newer request superseded this one
-        if (!res.ok) throw new Error(data.error ?? "Could not price your bag.");
         setState({ quote: data.quote, loading: false, error: null, configured: data.configured !== false });
       } catch (e) {
         if (mine !== seq.current) return;
-        setState((s) => ({ ...s, loading: false, error: e instanceof Error ? e.message : "Could not price your bag." }));
+        // Drop the old quote: it priced a different bag, so its total must not stay on screen or be payable.
+        setState((s) => ({ ...s, quote: null, loading: false, error: friendlyError(e, "Could not price your bag. Please check your connection.") }));
       }
     }, 250);
     return () => clearTimeout(t);

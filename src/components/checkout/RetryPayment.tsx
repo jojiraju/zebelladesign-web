@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { apiFetch } from "@/lib/api/client";
+import { apiJson, friendlyError } from "@/lib/api/client";
 import { pay, type PaymentSession } from "./razorpay-client";
 
 /** Re-opens payment for an existing unpaid order (server confirms the stock hold is still valid). */
@@ -14,14 +14,12 @@ export function RetryPaymentButton({ orderId, email }: { orderId: string; email:
   async function retry() {
     setBusy(true); setError(null);
     try {
-      const res = await apiFetch("/checkout/retry", { method: "POST", body: JSON.stringify({ orderId }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Could not restart payment.");
-      const r = await pay(data as PaymentSession, { email });
+      const session = await apiJson<PaymentSession>("/checkout/retry", { json: { orderId } });
+      const r = await pay(session, { email });
       if (r.state === "paid" || r.state === "pending") router.push(`/checkout/success?order=${orderId}`);
       else if (r.state === "failed") setError(r.message);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not restart payment.");
+      setError(friendlyError(e, "Could not restart payment."));
     } finally { setBusy(false); }
   }
 

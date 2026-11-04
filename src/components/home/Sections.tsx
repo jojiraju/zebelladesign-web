@@ -211,18 +211,32 @@ export function Testimonials({ items, message }: { items: Testimonial[]; message
   }
   return (
     <section className="container-x mt-36" aria-labelledby="t-h">
-      <SectionHead eyebrow="Verified customers" title="In their words" />
-      <h2 id="t-h" className="sr-only">Customer testimonials</h2>
-      <ul className="grid gap-8 md:grid-cols-3">
-        {items.slice(0, 3).map((t, i) => (
-          <Reveal as="li" key={t.id} delay={i * 0.08}>
-            <figure className="h-full border border-line bg-white p-8">
-              <blockquote className="font-serif text-2xl leading-snug">&ldquo;{t.quote}&rdquo;</blockquote>
-              <figcaption className="mt-6 text-xs uppercase tracking-[0.2em] text-taupe-deep">{t.name}{t.location && `, ${t.location}`} · Verified purchase</figcaption>
-            </figure>
-          </Reveal>
-        ))}
-      </ul>
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blush via-ivory to-cream px-5 py-14 ring-1 ring-line sm:px-10 sm:py-20">
+        <div aria-hidden className="fx-drift pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-rose-soft/30 blur-3xl" />
+        <span aria-hidden className="pointer-events-none absolute left-6 top-0 font-serif text-[16rem] leading-none text-gold/10 sm:left-14">&ldquo;</span>
+        <div className="relative mx-auto mb-12 max-w-2xl text-center">
+          <p className="eyebrow justify-center">Verified customers</p>
+          <h2 id="t-h" className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">In their <span className="italic text-gradient">words</span></h2>
+          <p className="mt-4 flex items-center justify-center gap-2 text-sm text-taupe-deep"><span aria-hidden className="tracking-[0.2em] text-gold-deep">★★★★★</span>Loved by women across India</p>
+        </div>
+        <ul className="relative grid gap-5 md:grid-cols-3">
+          {items.slice(0, 3).map((t, i) => (
+            <Reveal as="li" key={t.id} delay={i * 0.1} className="h-full">
+              <figure className={`group flex h-full flex-col rounded-[2rem] bg-white shadow-[0_24px_50px_-34px_rgba(143,74,91,.6)] ring-1 ring-line transition duration-500 hover:-translate-y-2 hover:shadow-[0_40px_70px_-30px_rgba(143,74,91,.7)] ${i === 1 ? "md:translate-y-8" : ""}`}>
+                <div className="relative flex flex-1 flex-col p-7 sm:p-8">
+                  <span aria-hidden className="absolute right-6 top-6 grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-rose-soft to-gold-deep font-serif text-4xl leading-none text-white shadow-md"><span className="-mb-3">&ldquo;</span></span>
+                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 pr-14"><span aria-hidden className="text-sm tracking-[0.25em] text-gold-deep">★★★★★</span><span className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-taupe-deep">Verified purchase</span></p>
+                  <blockquote className="mt-4 flex-1 font-serif text-[1.35rem] leading-snug">{t.quote}</blockquote>
+                  <figcaption className="mt-6 flex items-center gap-3 border-t border-line pt-5">
+                    <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-blush to-rose-soft font-serif text-lg text-gold-deep ring-1 ring-line">{t.name[0]}</span>
+                    <span className="min-w-0 text-sm leading-5"><b className="block font-medium">{t.name}</b><span className="text-xs uppercase tracking-[0.14em] text-taupe-deep">{t.location}</span></span>
+                  </figcaption>
+                </div>
+              </figure>
+            </Reveal>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
@@ -230,17 +244,29 @@ export function Testimonials({ items, message }: { items: Testimonial[]; message
 /* ---------- Social gallery (admin-managed images; no scraping) ---------- */
 export function SocialGallery({ items, instagram }: { items: HomepageContent["social"]; instagram?: string }) {
   if (!items.length) return null;
+  const handle = "@zebelladesigns";
+  const glyph = <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r=".6" fill="currentColor" /></svg>;
+  // Bento layout on desktop: first tile is large.
+  const span = ["md:col-span-2 md:row-span-2", "", "", "", "", "md:col-span-2"];
   return (
-    <section className="mt-36" aria-labelledby="ig-h">
-      <div className="container-x"><SectionHead eyebrow="@zebelladesigns" title="Seen on Instagram" />
-        <h2 id="ig-h" className="sr-only">Social gallery</h2></div>
-      <ul className="grid grid-cols-3 gap-1 md:grid-cols-6">
+    <section className="container-x mt-36" aria-labelledby="ig-h">
+      <div className="mx-auto mb-12 max-w-2xl text-center">
+        <p className="eyebrow justify-center">Follow along</p>
+        <h2 id="ig-h" className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">Seen on <span className="italic text-gradient">Instagram</span></h2>
+        <a href={instagram || "#"} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-line bg-white px-5 py-2.5 text-sm font-medium shadow-sm transition hover:-translate-y-0.5 hover:border-gold hover:text-gold-deep">
+          <span className="text-gold-deep">{glyph}</span>{handle}
+        </a>
+      </div>
+      <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:auto-rows-[15rem] md:grid-cols-4 lg:auto-rows-[17rem]">
         {items.slice(0, 6).map((s, i) => (
-          <li key={i} className="group relative aspect-square overflow-hidden bg-cream">
-            <a href={s.href || instagram || "#"} target="_blank" rel="noopener noreferrer" aria-label={s.alt || "View on Instagram"} className="absolute inset-0">
-              <Image src={s.imageUrl} alt={s.alt || ""} fill sizes="(min-width:768px) 16vw, 33vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-110" />
+          <Reveal as="li" key={i} delay={i * 0.06} className={`group relative aspect-[4/5] overflow-hidden rounded-3xl bg-cream shadow-[0_24px_40px_-30px_rgba(35,26,29,.6)] md:aspect-auto ${span[i] ?? ""}`}>
+            <a href={s.href || instagram || "#"} aria-label={s.alt || "View on Instagram"} className="absolute inset-0">
+              <Image src={s.imageUrl} alt={s.alt || ""} fill sizes="(min-width:768px) 25vw, 50vw" className="object-cover object-top transition-transform duration-[1400ms] ease-[var(--ease-lux)] group-hover:scale-105" />
+              <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-espresso/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <span aria-hidden className="absolute left-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-gold-deep shadow transition duration-500 group-hover:scale-110">{glyph}</span>
+              <span className="absolute inset-x-0 bottom-0 translate-y-3 p-5 text-sm font-medium text-ivory opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">{s.alt?.replace(", styled", "")} <ArrowRight size={14} className="ml-1 inline" aria-hidden /></span>
             </a>
-          </li>
+          </Reveal>
         ))}
       </ul>
     </section>

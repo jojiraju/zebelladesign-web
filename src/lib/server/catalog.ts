@@ -66,11 +66,6 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
   return (await getPublishedProducts()).find((p) => p.slug === slug);
 }
 
-export async function getProductsByIds(ids: string[]): Promise<Product[]> {
-  const set = new Set(ids);
-  return (await getPublishedProducts()).filter((p) => set.has(p.id));
-}
-
 export interface ProductFilters {
   q?: string;
   category?: string;

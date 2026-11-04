@@ -1,6 +1,5 @@
 "use client";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 
@@ -33,8 +32,8 @@ export function Emblem({ message }: { message: string }) {
         </div>
         <div ref={ref} className="relative mx-auto aspect-square w-full max-w-md" role="img" aria-label="Decorative 3D Zebella ZB monogram">
           {on ? <Scene /> : (
-            // Static fallback (reduced motion / low-power devices / before scroll-in): the flat monogram
-            <div className="absolute inset-0 grid place-items-center" aria-hidden><Image src="/brand/logo-mark.png" alt="" width={500} height={414} className="h-auto w-[78%]" /></div>
+            // Static fallback (reduced motion / low-power devices / before scroll-in): the flat monogram, tinted gold to match the 3D emblem
+            <div className="absolute inset-0 grid place-items-center" aria-hidden><div className="aspect-[500/414] w-[78%] bg-gradient-to-br from-[#f0cf7a] via-[#d4a437] to-[#a97c1f] [mask:url(/brand/logo-mark.png)_center/contain_no-repeat]" /></div>
           )}
         </div>
       </div>

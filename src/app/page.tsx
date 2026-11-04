@@ -1,6 +1,6 @@
 import { Hero } from "@/components/home/Hero";
 import { Emblem } from "@/components/home/Emblem";
-import { BrandStory, CollectionsMosaic, FeaturedProducts, NewsletterSection, PromoBanners, SocialGallery, Testimonials } from "@/components/home/Sections";
+import { BrandStory, CollectionsMosaic, FeaturedProducts, PromoBanners, SocialGallery, Testimonials } from "@/components/home/Sections";
 import { getBanners, getCollections, getHomepage, getPublishedProducts, getSettings, getTestimonials, toPublicProduct } from "@/lib/server/catalog";
 import { isApiConfigured } from "@/lib/api/client";
 import type { FeaturedTile } from "@/lib/content";
@@ -34,7 +34,6 @@ export default async function HomePage() {
       <Emblem message={home.editorialMessage || "Designed to be remembered."} />
       <Testimonials items={testimonials} />
       <SocialGallery items={home.social} instagram={settings.social.instagram} />
-      <NewsletterSection settings={settings} />
     </>
   );
 }

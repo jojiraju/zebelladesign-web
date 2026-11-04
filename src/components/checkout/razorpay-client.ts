@@ -1,5 +1,5 @@
 "use client";
-import { apiFetch } from "@/lib/api/client";
+import { ApiError, apiJson } from "@/lib/api/client";
 
 export interface PaymentSession {
   orderId: string; providerOrderId: string; amount: number; currency: "INR"; publicKey: string; mode: "test" | "live"; email: string;
@@ -32,23 +32,25 @@ export type PayResult = { state: "paid" | "pending"; orderId: string } | { state
 export async function pay(session: PaymentSession, prefill: { name?: string; email?: string; contact?: string }): Promise<PayResult> {
   await loadScript();
   return new Promise<PayResult>((resolve) => {
+    // Razorpay keeps its window open after a failed attempt so the shopper can retry there, so a failure is only
+    // final once they close it. Reporting it earlier would show "failed" behind a window that can still take payment.
+    let lastFailure: string | null = null;
     const rzp = new window.Razorpay!({
       key: session.publicKey, amount: session.amount, currency: session.currency, order_id: session.providerOrderId,
       name: "Zebella Designs", description: `Order ${session.orderId}`, prefill, theme: { color: "#231A1D" },
-      modal: { ondismiss: () => resolve({ state: "dismissed" }) },
+      modal: { ondismiss: () => resolve(lastFailure ? { state: "failed", message: lastFailure } : { state: "dismissed" }) },
       handler: async (r: RzpResponse) => {
         try {
-          const res = await apiFetch("/checkout/verify", { method: "POST", body: JSON.stringify({ orderId: session.orderId, ...r }) });
-          const data = await res.json();
-          if (!res.ok) return resolve({ state: "failed", message: data.error ?? "We could not confirm your payment." });
+          const data = await apiJson<{ state?: string }>("/checkout/verify", { json: { orderId: session.orderId, ...r } });
           resolve({ state: data.state === "paid" ? "paid" : "pending", orderId: session.orderId });
-        } catch {
-          // Payment may have succeeded; the webhook will still confirm it. Tell the user honestly.
+        } catch (e) {
+          if (e instanceof ApiError && e.status < 500) return resolve({ state: "failed", message: e.message });
+          // Payment may have succeeded (network or server trouble); the webhook will still confirm it. Tell the user honestly.
           resolve({ state: "pending", orderId: session.orderId });
         }
       },
     });
-    rzp.on("payment.failed", (r) => resolve({ state: "failed", message: r.error?.description ?? "The payment did not go through." }));
+    rzp.on("payment.failed", (r) => { lastFailure = r.error?.description ?? "The payment did not go through."; });
     rzp.open();
   });
 }

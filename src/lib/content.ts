@@ -103,6 +103,8 @@ export interface Testimonial {
   name: string;
   quote: string;
   location?: string;
+  /** Optional photo of the piece the customer bought (shown on the review card). */
+  imageUrl?: string;
   verified: boolean;
   status: "draft" | "published";
 }

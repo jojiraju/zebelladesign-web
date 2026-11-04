@@ -201,5 +201,3 @@ export interface Order {
   createdAt: number;
   updatedAt: number;
 }
-
-export type Role = "admin" | "editor" | "fulfillment";

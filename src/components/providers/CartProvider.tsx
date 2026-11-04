@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { apiJson, isApiConfigured } from "@/lib/api/client";
-import { MAX_QTY_PER_LINE } from "@/lib/commerce/catalog-rules";
+import { apiJson, isApiConfigured, tokenStore } from "@/lib/api/client";
+import { clampQty, reconcileCart, sameLine as same } from "@/lib/commerce/cart";
 import type { CartItemInput } from "@/lib/types";
 import { useAuth } from "./AuthProvider";
 
@@ -22,26 +22,12 @@ interface CartCtx {
 
 const Ctx = createContext<CartCtx | null>(null);
 
-const same = (a: CartItemInput, b: { productId: string; variantId: string }) => a.productId === b.productId && a.variantId === b.variantId;
-const clampQty = (n: number) => Math.max(1, Math.min(MAX_QTY_PER_LINE, Math.floor(n)));
-
-/** Merge two carts: same line quantities are summed (capped), so nothing a shopper added is lost at login. */
-export function mergeCarts(a: CartItemInput[], b: CartItemInput[]): CartItemInput[] {
-  const out = a.map((i) => ({ ...i }));
-  for (const item of b) {
-    const hit = out.find((o) => same(o, item));
-    if (hit) hit.quantity = clampQty(hit.quantity + item.quantity);
-    else out.push({ ...item });
-  }
-  return out;
-}
-
-function readLocal(): { items: CartItemInput[]; couponCode: string } {
+function readLocal(): { items: CartItemInput[]; couponCode: string; owner: string | null } {
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) ?? "null");
-    if (raw && Array.isArray(raw.items)) return { items: raw.items, couponCode: raw.couponCode ?? "" };
+    if (raw && Array.isArray(raw.items)) return { items: raw.items, couponCode: raw.couponCode ?? "", owner: raw.owner ?? null };
   } catch { /* corrupted storage: start fresh */ }
-  return { items: [], couponCode: "" };
+  return { items: [], couponCode: "", owner: null };
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -52,56 +38,78 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // State (not a ref): the persist effect must only run once the stored cart is IN state, otherwise the first
   // commit would overwrite the saved cart with the empty initial one.
   const [hydrated, setHydrated] = useState(false);
-  const mergedFor = useRef<string | null>(null);
+  // Which account this device's cart is a copy of (null: a guest cart whose items are not on any account yet).
+  const [owner, setOwner] = useState<string | null>(null);
+  // Mirroring is only safe once the account cart has loaded; before that it could overwrite the account with this device's cart.
+  const [syncedFor, setSyncedFor] = useState<string | null>(null);
+  const loadStartedFor = useRef<string | null>(null);
 
-  // Hydrate guest cart from localStorage once.
+  // Hydrate the cart from localStorage once.
   useEffect(() => {
     const l = readLocal();
     /* eslint-disable react-hooks/set-state-in-effect -- one-time hydration from localStorage; must run post-mount to avoid an SSR mismatch */
     setItems(l.items);
     setCouponCode(l.couponCode);
+    setOwner(l.owner);
     /* eslint-enable react-hooks/set-state-in-effect */
     setHydrated(true);
   }, []);
 
-  // Persist locally (guest carts) on every change.
+  // Persist locally on every change.
   useEffect(() => {
     if (!hydrated) return;
-    try { localStorage.setItem(KEY, JSON.stringify({ items, couponCode })); } catch { /* private mode */ }
-  }, [items, couponCode, hydrated]);
+    try { localStorage.setItem(KEY, JSON.stringify({ items, couponCode, owner })); } catch { /* private mode */ }
+  }, [items, couponCode, owner, hydrated]);
 
-  // Signed-in: merge guest cart with the account cart exactly once per login, then mirror to the account cart (API).
+  // Signed-in: load the account cart once per login and combine it with this device's cart.
   useEffect(() => {
-    if (!ready || !user || !isApiConfigured() || mergedFor.current === user.id) return;
-    mergedFor.current = user.id;
+    if (!hydrated || !ready || !user || !isApiConfigured() || loadStartedFor.current === user.id) return;
+    const id = user.id;
+    loadStartedFor.current = id;
     (async () => {
       try {
         // GET /cart -> { items: CartItemInput[], couponCode?: string }
         const remote = await apiJson<{ items?: CartItemInput[]; couponCode?: string }>("/cart", { method: "GET" });
-        setItems((local) => mergeCarts(remote.items ?? [], local));
-        if (remote.couponCode) setCouponCode((c) => c || remote.couponCode!);
+        if (loadStartedFor.current !== id) return; // signed out while loading
+        setItems((device) => reconcileCart(remote.items ?? [], device, owner));
+        setCouponCode((c) => (owner === null ? c || remote.couponCode || "" : remote.couponCode ?? ""));
+        setOwner(id);
+        setSyncedFor(id);
       } catch (e) {
         console.error("[cart] could not load account cart", e);
       }
     })();
-  }, [ready, user]);
+  }, [hydrated, ready, user, owner]);
 
-  useEffect(() => { if (!user) mergedFor.current = null; }, [user]);
+  // Signed out: an account's cart must not stay on the device for the next person. (A remaining token means the
+  // session check only failed on a network error, so the shopper is still signed in and their copy stays.)
+  useEffect(() => {
+    if (user) return;
+    loadStartedFor.current = null;
+    /* eslint-disable react-hooks/set-state-in-effect -- resets derived sync state when the signed-in user goes away */
+    setSyncedFor(null);
+    if (ready && owner && !tokenStore.get()) {
+      setItems([]);
+      setCouponCode("");
+      setOwner(null);
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [user, ready, owner]);
 
   // Mirror to the account cart (debounced).
   useEffect(() => {
-    if (!user || !isApiConfigured() || mergedFor.current !== user.id || !hydrated) return;
+    if (!user || !isApiConfigured() || syncedFor !== user.id) return;
     const t = setTimeout(() => {
       // PUT /cart { items, couponCode }
       apiJson("/cart", { method: "PUT", json: { items, couponCode } }).catch((e) =>
         console.error("[cart] sync failed", e));
     }, 600);
     return () => clearTimeout(t);
-  }, [items, couponCode, user, hydrated]);
+  }, [items, couponCode, user, syncedFor]);
 
-  // Cross-tab sync for guest carts.
+  // Cross-tab sync.
   useEffect(() => {
-    const on = (e: StorageEvent) => { if (e.key === KEY) { const l = readLocal(); setItems(l.items); setCouponCode(l.couponCode); } };
+    const on = (e: StorageEvent) => { if (e.key === KEY) { const l = readLocal(); setItems(l.items); setCouponCode(l.couponCode); setOwner(l.owner); } };
     window.addEventListener("storage", on);
     return () => window.removeEventListener("storage", on);
   }, []);

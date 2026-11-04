@@ -145,5 +145,44 @@ small("not-found", "bow-frock-black", "#7A2B4A", stroke(`<path d="M120,300 H460 
   const bg = studio(900, 1200, "#B96E7C", { archSide: false });
   save(join(ART, "placeholder.svg"), svg(900, 1200, bg.defs + m.defs, bg.body + `<g transform="translate(0,60)">${m.body}</g>`));
 }
-console.log("site art: hero, hero-mobile, banner, story, tiles, collections, contact, track, not-found, placeholder");
+// christmas collection (tall): kept last so earlier scenes keep their generated ids
+{
+  const bauble = (x, y, r, fill) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/><circle cx="${x - r * 0.3}" cy="${y - r * 0.35}" r="${r * 0.28}" fill="#fff" opacity=".55"/>`;
+  const star = (cx, cy, r) => {
+    const pts = Array.from({ length: 10 }, (_, i) => {
+      const a = -Math.PI / 2 + (i * Math.PI) / 5, d = i % 2 ? r * 0.45 : r;
+      return `${(cx + Math.cos(a) * d).toFixed(1)},${(cy + Math.sin(a) * d).toFixed(1)}`;
+    });
+    return `<polygon points="${pts.join(" ")}" fill="#F0C24B"/>`;
+  };
+  const tree = (cx, base, height, width) => {
+    const tiers = 4, tierH = height / tiers;
+    let out = `<rect x="${cx - width * 0.06}" y="${base - 40}" width="${width * 0.12}" height="40" fill="#4A2C20"/>`;
+    for (let i = 0; i < tiers; i++) {
+      const top = base - 40 - height + i * tierH * 0.86, bottom = top + tierH * 1.45, half = (width / 2) * (0.5 + (i * 0.5) / (tiers - 1));
+      out += `<path d="M${cx},${top} L${cx + half},${bottom} Q${cx},${bottom + 22} ${cx - half},${bottom} Z" fill="${i % 2 ? "#2F7A52" : "#266545"}"/>`;
+    }
+    const colors = ["#C8102E", "#F0C24B", "#F7F1E3", "#C8102E", "#F0C24B", "#F7F1E3", "#C8102E", "#F0C24B"];
+    [[-0.12, 0.2], [0.13, 0.28], [-0.22, 0.43], [0.2, 0.47], [-0.05, 0.56], [-0.32, 0.72], [0.1, 0.74], [0.34, 0.76]].forEach(([dx, dy], i) => {
+      out += bauble(cx + dx * width, base - 40 - height + dy * height * 1.02, 11, colors[i]);
+    });
+    return out + star(cx, base - 40 - height - 4, 30);
+  };
+  const garland = () => {
+    let out = `<path d="M-20,70 Q225,190 450,70 Q675,190 920,70" fill="none" stroke="#2F7A52" stroke-width="22" stroke-linecap="round"/>`;
+    out += `<path d="M-20,70 Q225,190 450,70 Q675,190 920,70" fill="none" stroke="#F0C24B" stroke-width="3" stroke-dasharray="2 34" stroke-linecap="round"/>`;
+    [[225, 130, "#C8102E"], [675, 130, "#C8102E"]].forEach(([x, y, c]) => { out += bauble(x, y + 34, 22, c) + `<rect x="${x - 6}" y="${y + 4}" width="12" height="10" fill="#F0C24B"/>`; });
+    return out;
+  };
+  const gift = (x, y, w, h, box, ribbon) =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${box}"/><rect x="${x + w / 2 - 7}" y="${y}" width="14" height="${h}" fill="${ribbon}"/><rect x="${x}" y="${y + h * 0.36}" width="${w}" height="12" fill="${ribbon}"/>` +
+    `<path d="M${x + w / 2},${y} q-26,-30 -36,-6 q4,14 36,6 q26,-30 36,-6 q-4,14 -36,6" fill="${ribbon}"/>`;
+  scene("collection-christmas", 900, 1200, (w, h) => ({
+    defs: backdrop("bg", "#1E4A36", "#0F2A20") + `<radialGradient id="glow"><stop offset="0" stop-color="#F7E2A8" stop-opacity=".55"/><stop offset="1" stop-color="#F7E2A8" stop-opacity="0"/></radialGradient>`,
+    body: `<rect width="${w}" height="${h}" fill="url(#bg)"/>${arch(w * 0.5, h * 0.09, w * 0.68, h * 0.91, "#fff", 0.08)}<circle cx="450" cy="470" r="400" fill="url(#glow)"/>` +
+      tree(150, 1150, 600, 260) + tree(762, 1150, 520, 250) + garland() + `<ellipse cx="450" cy="1150" rx="360" ry="24" fill="#000" opacity=".25"/>`,
+  }), [{ spec: spec("christmas-gown-red", { pose: "hip" }), x: 450, y: 110, s: 0.88 }],
+  gift(56, 1076, 92, 80, "#C8102E", "#F0C24B") + gift(136, 1102, 66, 54, "#F7F1E3", "#C8102E") + gift(706, 1090, 76, 66, "#F0C24B", "#C8102E") + gift(772, 1062, 74, 94, "#7A1020", "#F7F1E3") + snow(900, 1200, 70, 11));
+}
+console.log("site art: hero, hero-mobile, banner, story, tiles, collections, contact, track, not-found, placeholder, collection-christmas");
 void GOLD;

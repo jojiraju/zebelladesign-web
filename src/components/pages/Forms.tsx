@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Check, CircleAlert, Clock, Loader2, Mail, MessageSquare, Send, User } from "lucide-react";
-import { formatINR } from "@/lib/commerce/money";
-import { apiFetch } from "@/lib/api/client";
+import { apiJson, friendlyError } from "@/lib/api/client";
 
 type Status = { kind: "idle" | "loading" } | { kind: "ok" | "error"; text: string };
 
@@ -26,12 +25,10 @@ export function ContactForm() {
     if (err.name || err.email || err.message) return;
     setS({ kind: "loading" });
     try {
-      const res = await apiFetch("/contact", { method: "POST", body: JSON.stringify(f) });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) return setS({ kind: "error", text: data.error ?? "We couldn't send your message. Please try again." });
+      await apiJson("/contact", { json: f });
       setS({ kind: "ok", text: "" });
       setF(empty); setTouched(false);
-    } catch { setS({ kind: "error", text: "Network problem. Please try again." }); }
+    } catch (e) { setS({ kind: "error", text: friendlyError(e, "Network problem. Please try again.") }); }
   }
 
   if (s.kind === "ok")
@@ -99,13 +96,10 @@ export function TrackForm() {
   async function submit(e: React.FormEvent) {
     e.preventDefault(); setS({ kind: "loading" }); setRes(null);
     try {
-      const r = await apiFetch("/orders/track", { method: "POST", body: JSON.stringify({ orderId, email }) });
-      const data = await r.json();
-      if (!r.ok) return setS({ kind: "error", text: data.error ?? "We couldn't find that order." });
-      setRes(data); setS({ kind: "idle" });
-    } catch { setS({ kind: "error", text: "Network problem. Please try again." }); }
+      setRes(await apiJson<Tracking>("/orders/track", { json: { orderId, email } }));
+      setS({ kind: "idle" });
+    } catch (e) { setS({ kind: "error", text: friendlyError(e, "Network problem. Please try again.") }); }
   }
-  void formatINR;
   return (
     <div className="max-w-md">
       <form onSubmit={submit} className="space-y-5">

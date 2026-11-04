@@ -19,7 +19,7 @@ const DAY = 86_400_000;
 const NOW = Date.UTC(2026, 10, 1); // fixed so server and client agree
 
 export const MOCK_COLLECTION_ART: Record<string, string> = {
-  "christmas-collection": "/art/tile-festive.svg",
+  "christmas-collection": "/art/collection-christmas.svg",
   "top-bottom-sets": "/art/collection-2.svg",
   frocks: "/art/collection-3.svg",
   "salwar-sets": "/art/tile-best.svg",
@@ -102,7 +102,7 @@ export const MOCK_HOMEPAGE: HomepageContent = {
   hero: { textInImage: true, imageUrl: "/art/hero-banner.webp", mobileImageUrl: "/art/hero-banner-mobile.webp", eyebrow: "Zebella Designs", heading: "Designed to be remembered", ctaLabel: "Shop the Collection", ctaHref: "/shop", secondaryLabel: "New Arrivals", secondaryHref: "/shop?sort=newest" },
   featuredCollections: [
     { title: "New Arrivals", subtitle: "Just landed", imageUrl: "/art/tile-new.svg", href: "/shop?sort=newest", size: "large" },
-    { title: "Christmas Collection", imageUrl: collectionImg("christmas-collection", "/art/tile-festive.svg"), href: "/collections/christmas-collection", size: "tall" },
+    { title: "Christmas Collection", imageUrl: collectionImg("christmas-collection", "/art/collection-christmas.svg"), href: "/collections/christmas-collection", size: "tall" },
     { title: "Festive Wear", imageUrl: "/art/tile-ethnic.svg", href: "/collections/festive-wear", size: "wide" },
     { title: "Signature Collection", imageUrl: "/art/tile-signature.svg", href: "/collections/signature-collection", size: "small" },
     { title: "Best Sellers", imageUrl: "/art/tile-best.svg", href: "/shop?sort=popular", size: "small" },
@@ -119,7 +119,8 @@ export const MOCK_HOMEPAGE: HomepageContent = {
     ],
     imageUrl: "/art/story.svg",
   },
-  social: PRODUCT_SPECS.slice(0, 6).map((p) => ({ imageUrl: productImg(p.slug, 2), href: "/shop", alt: `${p.name}, styled` })),
+  // Prefer products that have a real photo, so the gallery looks like a real feed.
+  social: [...PRODUCT_SPECS].sort((a, b) => Number(!!photos[`${b.slug}-1`]) - Number(!!photos[`${a.slug}-1`])).slice(0, 6).map((p) => ({ imageUrl: productImg(p.slug, 1), href: `/products/${p.slug}`, alt: `${p.name}, styled` })),
   editorialMessage: "Designed to be remembered.",
 };
 
