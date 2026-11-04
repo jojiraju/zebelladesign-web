@@ -4,8 +4,8 @@ import Link from "next/link";
 import { ArrowRight, Gem, Heart, Palette, PackageCheck, RotateCcw, Scissors, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { collectionArt } from "@/lib/art";
 import { getCollections, getHomepage } from "@/lib/server/catalog";
-import { ParallaxFrame, Reveal, WordReveal } from "@/components/ui/motion";
-import { FOUNDER, FOUNDERS, STORY_CHAPTERS, STORY_QUOTE } from "@/lib/story";
+import { Reveal, WordReveal } from "@/components/ui/motion";
+import { FOUNDER, STORY_CHAPTERS, STORY_QUOTE } from "@/lib/story";
 
 export const revalidate = 60;
 export const metadata: Metadata = { title: "About Us", description: "The story and design philosophy behind Zebella Designs.", alternates: { canonical: "/about" } };
@@ -90,12 +90,12 @@ export default async function AboutPage() {
       <section className="container-x mt-24 sm:mt-32" aria-labelledby="story-h">
         <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <ParallaxFrame className="relative mx-auto aspect-[4/5] max-w-md overflow-hidden rounded-t-[999px] rounded-b-[2rem] bg-cream shadow-[0_40px_80px_-40px_rgba(35,26,29,.55)] lg:max-w-none" strength={5}>
-              <Image src={FOUNDERS.image} alt="Nijisha and Martin, the founders of Ze Bella" fill sizes="(min-width:1024px) 40vw, 90vw" className="object-cover object-top" />
-            </ParallaxFrame>
+            <div className="relative mx-auto aspect-[4/5] max-w-md overflow-hidden rounded-t-[999px] rounded-b-[2rem] bg-cream shadow-[0_40px_80px_-40px_rgba(35,26,29,.55)] lg:max-w-none">
+              <Image src={FOUNDER.image} alt="Nijisha Martin, founder of Ze Bella" fill sizes="(min-width:1024px) 40vw, 90vw" className="object-cover object-top" />
+            </div>
             <div className="relative z-10 mx-auto -mt-10 flex w-[88%] max-w-sm items-center gap-4 rounded-2xl bg-white p-4 shadow-[0_24px_50px_-28px_rgba(143,74,91,.7)] ring-1 ring-line lg:max-w-none">
               <span aria-hidden className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-rose-soft to-gold-deep text-white"><Heart size={22} /></span>
-              <span><b className="block font-serif text-2xl leading-tight">{FOUNDERS.names}</b><span className="text-xs uppercase tracking-[0.18em] text-taupe-deep">{FOUNDERS.role}</span></span>
+              <span><b className="block font-serif text-2xl leading-tight">{FOUNDER.name}</b><span className="text-xs uppercase tracking-[0.18em] text-taupe-deep">{FOUNDER.role}</span></span>
             </div>
           </div>
 

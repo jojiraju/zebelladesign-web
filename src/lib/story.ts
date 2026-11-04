@@ -1,7 +1,5 @@
 /** Brand story copy supplied by the client. Keep the wording exactly as given. */
-export const FOUNDER = { name: "Nijisha", role: "Founder & designer" };
-/** Photo caption: the two founders. */
-export const FOUNDERS = { names: "Nijisha & Martin", role: "The founders", image: "/brand/founders.webp" };
+export const FOUNDER = { name: "Nijisha Martin", role: "Founder & designer", image: "/brand/founder.webp" };
 
 export const STORY_CHAPTERS: { label: string; text: string }[] = [
   { label: "Who we are", text: "Behind the creation of Ze Bella stands Nijisha, a passionate designer with a nurse's heart who transformed her dream into reality." },
