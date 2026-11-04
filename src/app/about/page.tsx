@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Gem, Heart, Palette, PackageCheck, RotateCcw, Scissors, ShieldCheck, Sparkles, Truck } from "lucide-react";
-import { RichText } from "@/components/ui/RichText";
 import { collectionArt } from "@/lib/art";
 import { getCollections, getHomepage } from "@/lib/server/catalog";
 import { ParallaxFrame, Reveal, WordReveal } from "@/components/ui/motion";
+import { FOUNDER, FOUNDERS, STORY_CHAPTERS, STORY_QUOTE } from "@/lib/story";
 
 export const revalidate = 60;
 export const metadata: Metadata = { title: "About Us", description: "The story and design philosophy behind Zebella Designs.", alternates: { canonical: "/about" } };
@@ -21,10 +21,10 @@ const PROCESS = [
 ];
 
 const PROMISES = [
-  { icon: Truck, title: "Pan-India delivery", text: "Delivered to your door in 5–8 business days." },
-  { icon: RotateCcw, title: "Easy returns", text: "7 days to return unworn pieces with tags." },
-  { icon: ShieldCheck, title: "Secure payments", text: "UPI, cards and netbanking, processed securely." },
-  { icon: Scissors, title: "Custom fit", text: "Selected styles can be tailored — just ask." },
+  { icon: Truck, stat: "5–8", unit: "days", title: "Pan-India delivery", text: "Delivered to your door in 5–8 business days.", tone: "from-blush to-rose-soft/70" },
+  { icon: RotateCcw, stat: "7", unit: "days", title: "Easy returns", text: "7 days to return unworn pieces with tags.", tone: "from-cream to-blush/80" },
+  { icon: ShieldCheck, stat: "UPI", unit: "& cards", title: "Secure payments", text: "UPI, cards and netbanking, processed securely.", tone: "from-rose-soft/60 to-blush" },
+  { icon: Scissors, stat: "Made", unit: "to fit", title: "Custom fit", text: "Selected styles can be tailored — just ask.", tone: "from-blush to-cream" },
 ];
 
 export default async function AboutPage() {
@@ -41,9 +41,9 @@ export default async function AboutPage() {
       {/* ---------- Hero ---------- */}
       <section className="container-x grid items-center gap-12 pt-10 sm:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
         <div>
-          <p className="eyebrow">{s.eyebrow ?? "Our story"}</p>
-          <h1 className="mt-5 font-serif text-4xl font-light leading-[1.08] sm:text-5xl lg:text-[3.6rem]"><WordReveal text={s.heading ?? "About Zebella Designs"} /></h1>
-          <Reveal delay={0.2}><p className="mt-7 max-w-xl text-lg leading-8 text-taupe-deep">Contemporary ethnic and festive wear for the moments that matter — designed with care, finished by hand and made to be worn again and again.</p></Reveal>
+          <p className="eyebrow">Our story</p>
+          <h1 className="mt-5 font-serif text-4xl font-light leading-[1.08] sm:text-5xl lg:text-[3.6rem]"><WordReveal text="Behind Ze Bella" /></h1>
+          <Reveal delay={0.2}><p className="mt-7 max-w-xl text-lg leading-8 text-taupe-deep">{STORY_CHAPTERS[3].text}</p></Reveal>
           <Reveal delay={0.3} className="mt-9 flex flex-wrap gap-3">
             <Link href="/shop" className="btn btn-solid">Shop the collection <ArrowRight size={16} className="arrow" aria-hidden /></Link>
             <Link href="/collections" className="btn btn-ghost">Explore collections</Link>
@@ -87,15 +87,39 @@ export default async function AboutPage() {
       </section>
 
       {/* ---------- Story ---------- */}
-      <section className="container-x mt-24 grid items-center gap-12 sm:mt-32 md:grid-cols-2 lg:gap-20" aria-labelledby="story-h">
-        <ParallaxFrame className="aspect-[4/5] rounded-3xl bg-cream md:order-2" strength={6}>
-          <Image src="/art/tile-ethnic.svg" alt="" fill sizes="(min-width:768px) 45vw, 100vw" className="object-cover object-top" />
-        </ParallaxFrame>
-        <div>
-          <p className="eyebrow mb-4">The story</p>
-          <h2 id="story-h" className="font-serif text-4xl leading-tight sm:text-5xl">Designed to be remembered</h2>
-          <Reveal><RichText className="mt-7 text-lg leading-8 text-taupe-deep" html={s.body} /></Reveal>
-          <blockquote className="mt-8 border-l-2 border-gold pl-6 font-serif text-2xl leading-snug text-gold-deep">Clothes should feel as good as they look — and be worn long after the occasion.</blockquote>
+      <section className="container-x mt-24 sm:mt-32" aria-labelledby="story-h">
+        <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <ParallaxFrame className="relative mx-auto aspect-[4/5] max-w-md overflow-hidden rounded-t-[999px] rounded-b-[2rem] bg-cream shadow-[0_40px_80px_-40px_rgba(35,26,29,.55)] lg:max-w-none" strength={5}>
+              <Image src={FOUNDERS.image} alt="Nijisha and Martin, the founders of Ze Bella" fill sizes="(min-width:1024px) 40vw, 90vw" className="object-cover object-top" />
+            </ParallaxFrame>
+            <div className="relative z-10 mx-auto -mt-10 flex w-[88%] max-w-sm items-center gap-4 rounded-2xl bg-white p-4 shadow-[0_24px_50px_-28px_rgba(143,74,91,.7)] ring-1 ring-line lg:max-w-none">
+              <span aria-hidden className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-rose-soft to-gold-deep text-white"><Heart size={22} /></span>
+              <span><b className="block font-serif text-2xl leading-tight">{FOUNDERS.names}</b><span className="text-xs uppercase tracking-[0.18em] text-taupe-deep">{FOUNDERS.role}</span></span>
+            </div>
+          </div>
+
+          <div>
+            <p className="eyebrow mb-4">The story</p>
+            <h2 id="story-h" className="font-serif text-4xl leading-[1.05] sm:text-6xl">Small, soft, <span className="italic text-gradient">ours.</span></h2>
+            <Reveal><p className="mt-8 font-serif text-2xl leading-snug text-espresso sm:text-[1.65rem]"><span className="float-left mr-3 mt-1 font-serif text-7xl leading-[0.8] text-gold-deep">{STORY_CHAPTERS[0].text[0]}</span>{STORY_CHAPTERS[0].text.slice(1)}</p></Reveal>
+
+            <ol className="relative mt-12 space-y-9 border-l border-dashed border-gold/50 pl-8 sm:pl-10">
+              {STORY_CHAPTERS.slice(1).map((c, i) => (
+                <Reveal as="li" key={c.label} delay={0.05} className="relative">
+                  <span aria-hidden className="absolute -left-[2.55rem] top-0.5 grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-rose-soft to-gold-deep text-[0.65rem] font-semibold text-white ring-4 ring-ivory sm:-left-[3.05rem]">{i + 2}</span>
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-gold-deep">{c.label}</p>
+                  <p className="mt-2 text-lg leading-8 text-taupe-deep">{c.text}</p>
+                </Reveal>
+              ))}
+            </ol>
+
+            <blockquote className="relative mt-12 overflow-hidden rounded-3xl bg-gradient-to-br from-gold via-gold-deep to-wine p-8 text-ivory shadow-[0_30px_70px_-40px_rgba(143,74,91,.7)] sm:p-10">
+              <span aria-hidden className="absolute -right-4 -top-6 font-serif text-[10rem] leading-none text-ivory/15">&rdquo;</span>
+              <p className="relative font-serif text-2xl leading-snug sm:text-3xl">{STORY_QUOTE}</p>
+              <footer className="relative mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-ivory/80">— {FOUNDER.name}, Ze Bella</footer>
+            </blockquote>
+          </div>
         </div>
       </section>
 
@@ -145,13 +169,22 @@ export default async function AboutPage() {
       )}
 
       {/* ---------- Promises ---------- */}
-      <section className="container-x mt-24 sm:mt-32" aria-label="Our promises">
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {PROMISES.map(({ icon: Icon, title, text }) => (
-            <li key={title} className={`${card} flex gap-4 p-5`}>
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blush text-gold-deep"><Icon size={19} strokeWidth={1.6} aria-hidden /></span>
-              <span><b className="block font-medium">{title}</b><span className="text-sm text-taupe-deep">{text}</span></span>
-            </li>
+      <section className="container-x mt-24 sm:mt-32" aria-labelledby="promise-h">
+        <div className="mb-10 text-center"><p className="eyebrow justify-center">Our promise</p><h2 id="promise-h" className="mt-3 font-serif text-3xl sm:text-5xl">Shop with <span className="italic text-gradient">confidence</span></h2></div>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+          {PROMISES.map(({ icon: Icon, stat, unit, title, text, tone }, i) => (
+            <Reveal as="li" key={title} delay={i * 0.08} className="h-full">
+              <div className={`group relative flex h-full min-h-[18rem] flex-col overflow-hidden rounded-[2rem] bg-gradient-to-br ${tone} p-7 shadow-[0_30px_60px_-42px_rgba(143,74,91,.7)] ring-1 ring-line transition duration-500 hover:-translate-y-2 hover:shadow-[0_44px_70px_-36px_rgba(143,74,91,.8)]`}>
+                <Icon aria-hidden size={150} strokeWidth={0.7} className="pointer-events-none absolute -bottom-6 -right-6 text-gold-deep/15 transition duration-700 group-hover:-rotate-6 group-hover:scale-110" />
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-white text-gold-deep shadow-md ring-1 ring-line transition duration-500 group-hover:bg-gradient-to-br group-hover:from-rose-soft group-hover:to-gold-deep group-hover:text-white"><Icon size={20} strokeWidth={1.5} aria-hidden /></span>
+                <p className="mt-6 flex items-baseline gap-2 font-serif leading-none text-espresso"><span className="text-6xl">{stat}</span><span className="text-sm uppercase tracking-[0.2em] text-gold-deep">{unit}</span></p>
+                <div className="relative mt-auto pt-8">
+                  <h3 className="font-serif text-2xl">{title}</h3>
+                  <span aria-hidden className="mt-3 block h-px w-10 bg-gold-deep/60 transition-all duration-500 group-hover:w-20" />
+                  <p className="mt-3 max-w-[15rem] text-sm leading-6 text-taupe-deep">{text}</p>
+                </div>
+              </div>
+            </Reveal>
           ))}
         </ul>
       </section>

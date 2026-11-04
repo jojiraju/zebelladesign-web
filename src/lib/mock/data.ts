@@ -7,6 +7,7 @@ import { DEFAULT_SETTINGS } from "../content";
 import type { Address, Category, Collection, Coupon, Order, Product, Variant } from "../types";
 import { CATEGORY_DEFS, COLLECTION_DEFS, COLORS, PRODUCT_SPECS } from "./specs";
 import { MOCK_POLICIES } from "./policies";
+import { STORY_CHAPTERS } from "../story";
 import PHOTOS from "./photos.json";
 
 /** Slots that have a real/AI photo (managed by `npm run photos` / `npm run images`); everything else uses the SVG illustration. */
@@ -22,7 +23,7 @@ export const MOCK_COLLECTION_ART: Record<string, string> = {
   "christmas-collection": "/art/collection-christmas.svg",
   "top-bottom-sets": "/art/collection-2.svg",
   frocks: "/art/collection-3.svg",
-  "salwar-sets": "/art/tile-best.svg",
+  "salwar-sets": "/art/tile-best.webp",
   "festive-wear": "/art/tile-ethnic.svg",
   "signature-collection": "/art/tile-signature.svg",
 };
@@ -101,23 +102,23 @@ export const MOCK_SETTINGS: StoreSettings = {
 export const MOCK_HOMEPAGE: HomepageContent = {
   hero: { textInImage: true, imageUrl: "/art/hero-banner.webp", mobileImageUrl: "/art/hero-banner-mobile.webp", eyebrow: "Zebella Designs", heading: "Designed to be remembered", ctaLabel: "Shop the Collection", ctaHref: "/shop", secondaryLabel: "New Arrivals", secondaryHref: "/shop?sort=newest" },
   featuredCollections: [
-    { title: "New Arrivals", subtitle: "Just landed", imageUrl: "/art/tile-new.svg", href: "/shop?sort=newest", size: "large" },
+    { title: "New Arrivals", subtitle: "Just landed", imageUrl: "/art/tile-new.webp", href: "/shop?sort=newest", size: "large" },
     { title: "Christmas Collection", imageUrl: collectionImg("christmas-collection", "/art/collection-christmas.svg"), href: "/collections/christmas-collection", size: "tall" },
-    { title: "Festive Wear", imageUrl: "/art/tile-ethnic.svg", href: "/collections/festive-wear", size: "wide" },
-    { title: "Signature Collection", imageUrl: "/art/tile-signature.svg", href: "/collections/signature-collection", size: "small" },
-    { title: "Best Sellers", imageUrl: "/art/tile-best.svg", href: "/shop?sort=popular", size: "small" },
+    { title: "Festive Wear", imageUrl: collectionImg("festive-wear", "/art/tile-ethnic.svg"), href: "/collections/festive-wear", size: "wide" },
+    { title: "Signature Collection", imageUrl: collectionImg("signature-collection", "/art/tile-signature.svg"), href: "/collections/signature-collection", size: "small" },
+    { title: "Best Sellers", imageUrl: "/art/tile-best.webp", href: "/shop?sort=popular", size: "small" },
   ],
   featuredProductIds: PRODUCT_SPECS.filter((p) => p.flags.includes("f") || p.flags.includes("b")).slice(0, 8).map((p) => p.slug),
   brandStory: {
     eyebrow: "Our Story",
-    heading: "Contemporary Indian clothing, considered in every detail",
-    body: "Zebella Designs creates women's ethnic and contemporary wear for the moments that matter — from everyday salwar sets to festive anarkalis and gowns. Every piece is designed in-house, finished by hand and made to be worn again and again.",
+    heading: "Small, soft, ours.",
+    body: STORY_CHAPTERS[0].text + " " + STORY_CHAPTERS[2].text,
     points: [
-      { title: "Designed in-house", text: "Original silhouettes drawn and fitted by our design team." },
-      { title: "Finished by hand", text: "Trims, hems and embroidery completed with care." },
-      { title: "Made to be loved", text: "Soft fabrics, true colours and a fit that flatters." },
+      { title: "A nurse's heart", text: "Made with the same care a nurse gives." },
+      { title: "Our own label", text: "Our own name stitched inside." },
+      { title: "Starting small", text: "Small in India, dreaming worldwide." },
     ],
-    imageUrl: "/art/story.svg",
+    imageUrl: "/products/embroidered-gown-royal-blue-1.webp",
   },
   // Prefer products that have a real photo, so the gallery looks like a real feed.
   social: [...PRODUCT_SPECS].sort((a, b) => Number(!!photos[`${b.slug}-1`]) - Number(!!photos[`${a.slug}-1`])).slice(0, 6).map((p) => ({ imageUrl: productImg(p.slug, 1), href: `/products/${p.slug}`, alt: `${p.name}, styled` })),

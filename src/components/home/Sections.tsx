@@ -23,11 +23,11 @@ export function SectionHead({ eyebrow, title, href, linkLabel = "View all" }: { 
 
 /* ---------- Featured collections: asymmetric editorial mosaic ---------- */
 const DEFAULT_TILES: FeaturedTile[] = [
-  { title: "New Arrivals", subtitle: "Just landed", imageUrl: "/art/tile-new.svg", href: "/shop?sort=newest", size: "large" },
+  { title: "New Arrivals", subtitle: "Just landed", imageUrl: "/art/tile-new.webp", href: "/shop?sort=newest", size: "large" },
   { title: "Festive Wear", imageUrl: "/art/tile-festive.svg", href: "/collections/festive-wear", size: "tall" },
   { title: "Designer Ethnic Wear", imageUrl: "/art/tile-ethnic.svg", href: "/collections/designer-ethnic-wear", size: "wide" },
   { title: "Signature Collection", imageUrl: "/art/tile-signature.svg", href: "/collections/signature-collection", size: "small" },
-  { title: "Best Sellers", imageUrl: "/art/tile-best.svg", href: "/shop?sort=popular", size: "small" },
+  { title: "Best Sellers", imageUrl: "/art/tile-best.webp", href: "/shop?sort=popular", size: "small" },
 ];
 
 /** Bento layout: mobile stacks (big tiles full width, small ones in pairs); desktop uses a fixed 12-column grid. */
