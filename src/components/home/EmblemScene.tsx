@@ -50,7 +50,7 @@ function ZBLogo() {
   return (
     <group ref={group}>
       <mesh geometry={geometry}>
-        <meshStandardMaterial color="#f0c24b" metalness={0.45} roughness={0.28} />
+        <meshStandardMaterial color="#b96e7c" metalness={0.4} roughness={0.3} />
       </mesh>
     </group>
   );
@@ -60,8 +60,8 @@ export default function EmblemScene() {
   return (
     <Canvas dpr={[1, 1.75]} camera={{ position: [0, 0, 7], fov: 40 }} gl={{ antialias: true, alpha: true, powerPreference: "low-power" }} frameloop="always">
       <ambientLight intensity={0.9} />
-      <directionalLight position={[3, 4, 5]} intensity={3.2} color="#fff6e3" />
-      <directionalLight position={[-4, -2, 3]} intensity={1.8} color="#f5d58c" />
+      <directionalLight position={[3, 4, 5]} intensity={3.2} color="#fff1f4" />
+      <directionalLight position={[-4, -2, 3]} intensity={1.8} color="#f0b5c2" />
       <pointLight position={[0, 0, 4]} intensity={14} color="#ffffff" />
       <FitCamera />
       <ZBLogo />
