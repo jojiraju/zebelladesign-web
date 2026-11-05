@@ -119,7 +119,7 @@ export function CartContents({ onNavigate, variant = "page" }: { onNavigate?: ()
         <CouponBox quote={quote} />
         <Summary quote={quote} loading={loading} />
         {checkout}
-        {compact ? <Link href="/cart" onClick={onNavigate} className="link-underline block text-center text-xs uppercase tracking-[0.2em]">View full bag</Link> : <TrustRow />}
+        {compact ? <Link href="/cart" onClick={onNavigate} className="group flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-espresso/25 bg-white text-xs font-semibold uppercase tracking-[0.2em] text-espresso transition duration-300 hover:border-gold-deep hover:bg-blush hover:text-gold-deep"><ShoppingBag size={15} aria-hidden />View full bag<ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden /></Link> : <TrustRow />}
         {quote && !quote.valid && <p className="text-center text-sm text-danger">Fix the items marked above to continue.</p>}
       </aside>
     </div>
