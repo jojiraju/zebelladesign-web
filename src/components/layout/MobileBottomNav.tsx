@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
-import { Flame, House, LayoutGrid, ShoppingCart, Sparkles, type LucideIcon } from "lucide-react";
+import { Heart, House, LayoutGrid, ShoppingCart, Sparkles, type LucideIcon } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 
 type Item = { key: string; label: string; full: string; href: string; Icon: LucideIcon; active: (path: string, sort: string | null) => boolean };
@@ -11,8 +11,8 @@ type Item = { key: string; label: string; full: string; href: string; Icon: Luci
 const ITEMS: Item[] = [
   { key: "home", label: "Home", full: "Home", href: "/", Icon: House, active: (p) => p === "/" },
   { key: "collections", label: "Collections", full: "Collections", href: "/collections", Icon: LayoutGrid, active: (p) => p.startsWith("/collections") },
-  { key: "best", label: "Best", full: "Best sellers", href: "/shop?sort=popular", Icon: Flame, active: (p, s) => p.startsWith("/shop") && s === "popular" },
   { key: "new", label: "New", full: "New launches", href: "/shop?sort=newest", Icon: Sparkles, active: (p, s) => p.startsWith("/shop") && s === "newest" },
+  { key: "wishlist", label: "Wishlist", full: "Wishlist", href: "/account/wishlist", Icon: Heart, active: (p) => p.startsWith("/account/wishlist") },
 ];
 
 function Bar() {

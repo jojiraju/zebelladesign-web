@@ -26,7 +26,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero hero={home.hero} />
+      <Hero hero={home.hero} slides={home.heroSlides} />
       <CollectionsMosaic tiles={tiles} />
       <FeaturedProducts products={featured.map(toPublicProduct)} backendReady={isApiConfigured()} />
       <PromoBanners banners={banners} />

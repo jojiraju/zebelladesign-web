@@ -101,6 +101,13 @@ export const MOCK_SETTINGS: StoreSettings = {
 
 export const MOCK_HOMEPAGE: HomepageContent = {
   hero: { textInImage: true, imageUrl: "/art/hero-banner.webp", mobileImageUrl: "/art/hero-banner-mobile.webp", eyebrow: "Zebella Designs", heading: "Designed to be remembered", ctaLabel: "Shop the Collection", ctaHref: "/shop", secondaryLabel: "New Arrivals", secondaryHref: "/shop?sort=newest" },
+  // Banner images (artwork carries its own text). Add more here and the hero turns into a sliding carousel.
+  heroSlides: [
+    { textInImage: true, imageUrl: "/art/hero-banner.webp", mobileImageUrl: "/art/hero-banner-mobile.webp", eyebrow: "Zebella Designs", heading: "Designed to be remembered", ctaLabel: "Shop the Collection", ctaHref: "/shop", secondaryLabel: "New Arrivals", secondaryHref: "/shop?sort=newest" },
+    { textInImage: true, imageUrl: "/art/hero-new-arrivals.webp", mobileImageUrl: "/art/hero-new-arrivals-mobile.webp", eyebrow: "Zebella Designs", heading: "New Arrivals", ctaLabel: "Shop Now", ctaHref: "/shop?sort=newest"},
+    { textInImage: true, imageUrl: "/art/hero-festive.webp", mobileImageUrl: "/art/hero-festive-mobile.webp", eyebrow: "Zebella Designs", heading: "Festive Collection", ctaLabel: "Explore Collection", ctaHref: "/collections/festive-wear" },
+    { textInImage: true, imageUrl: "/art/hero-ethnic.webp", mobileImageUrl: "/art/hero-ethnic-mobile.webp", eyebrow: "Zebella Designs", heading: "Elegant Ethnic Wear", ctaLabel: "Shop the Collection", ctaHref: "/shop" },
+  ],
   featuredCollections: [
     { title: "New Arrivals", subtitle: "Just landed", imageUrl: "/art/tile-new.webp", href: "/shop?sort=newest", size: "large" },
     { title: "Christmas Collection", imageUrl: collectionImg("christmas-collection", "/art/collection-christmas.svg"), href: "/collections/christmas-collection", size: "tall" },

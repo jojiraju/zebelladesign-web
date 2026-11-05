@@ -42,6 +42,7 @@ export interface HeroSlide {
   mobileImageUrl?: string;
   eyebrow?: string;
   heading: string;
+  description?: string;
   ctaLabel?: string;
   ctaHref?: string;
   secondaryLabel?: string;
@@ -58,6 +59,8 @@ export interface FeaturedTile {
 
 export interface HomepageContent {
   hero: HeroSlide;
+  /** Optional carousel. When 2+ slides are given the hero slides automatically; `hero` is used otherwise. */
+  heroSlides?: HeroSlide[];
   featuredCollections: FeaturedTile[];
   featuredProductIds: string[];
   brandStory: { eyebrow?: string; heading?: string; body?: string; imageUrl?: string; points?: { title: string; text: string }[]; badge?: { title: string; text?: string } };

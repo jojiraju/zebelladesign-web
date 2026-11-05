@@ -4,11 +4,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import type { HeroSlide } from "@/lib/content";
+import { HeroCarousel } from "./HeroCarousel";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 /** Full-bleed campaign hero. Sits under the transparent header (-mt-20 cancels the sticky header's flow space). */
-export function Hero({ hero }: { hero: HeroSlide }) {
+/** Carousel when 2+ slides are supplied, otherwise the single campaign hero. */
+export function Hero({ hero, slides }: { hero: HeroSlide; slides?: HeroSlide[] }) {
+  return slides && slides.length > 1 ? <HeroCarousel slides={slides} /> : <SingleHero hero={hero} />;
+}
+
+function SingleHero({ hero }: { hero: HeroSlide }) {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -24,7 +30,7 @@ export function Hero({ hero }: { hero: HeroSlide }) {
     <>
     {hero.textInImage && hero.imageUrl && (
       <Link href={hero.ctaHref || "/shop"} aria-label={hero.heading} data-hero-banner className="relative hidden md:block">
-        <Image src={hero.imageUrl} alt={hero.heading} width={1983} height={793} priority sizes="100vw" className="h-auto w-full" />
+        <Image src={hero.imageUrl} alt={hero.heading} width={2073} height={759} priority sizes="100vw" className="h-auto w-full" />
       </Link>
     )}
     <section ref={ref} className={`relative -mt-20 flex min-h-[100svh] items-end overflow-hidden bg-espresso text-ivory ${hero.textInImage && hero.imageUrl ? "md:hidden" : ""}`} aria-label="Featured campaign">
