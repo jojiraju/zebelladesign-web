@@ -62,7 +62,7 @@ export function Dropdown<T extends string>({ value, options, onChange, label, pr
         {open && (
           <motion.ul id={`${id}-list`} role="listbox" aria-label={label} aria-activedescendant={`${id}-o${active}`} tabIndex={-1}
             initial={{ opacity: 0, y: -6, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.97 }} transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className={`absolute z-40 mt-2 w-64 origin-top rounded-2xl border border-line bg-white p-1.5 shadow-[0_24px_60px_-24px_rgba(35,26,29,.45)] ${align === "right" ? "right-0" : "left-0"}`}>
+            className={`absolute z-40 mt-2 w-64 max-w-[calc(100vw-2rem)] origin-top rounded-2xl border border-line bg-white p-1.5 shadow-[0_24px_60px_-24px_rgba(35,26,29,.45)] ${align === "right" ? "left-0 sm:left-auto sm:right-0" : "left-0"}`}>
             {options.map((o, i) => (
               <li key={o.value} id={`${id}-o${i}`} role="option" aria-selected={o.value === value} onMouseEnter={() => setActive(i)} onClick={() => choose(i)}
                 className={`flex cursor-pointer items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition-colors ${i === active ? "bg-blush/70" : ""} ${o.value === value ? "font-medium text-espresso" : "text-taupe-deep"}`}>
