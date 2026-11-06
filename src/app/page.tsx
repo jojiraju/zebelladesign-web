@@ -1,4 +1,5 @@
 import { Hero } from "@/components/home/Hero";
+import { DressStudio } from "@/components/home/DressStudio";
 import { Emblem } from "@/components/home/Emblem";
 import { ProductRing } from "@/components/home/ProductRing";
 import { ScrollMarquee } from "@/components/home/ScrollMarquee";
@@ -7,7 +8,7 @@ import { HorizontalShowcase, type ShowcaseItem } from "@/components/ui/Horizonta
 import { ART } from "@/lib/art";
 import { formatINR } from "@/lib/commerce/money";
 import { effectivePrice } from "@/lib/commerce/catalog-rules";
-import { STORY_QUOTE } from "@/lib/story";
+import { FOUNDER, STORY_QUOTE } from "@/lib/story";
 import { BrandStory, CollectionsMosaic, FeaturedProducts, PromoBanners, SocialGallery, Testimonials } from "@/components/home/Sections";
 import { getBanners, getCollections, getHomepage, getPublishedProducts, getSettings, getTestimonials, toPublicProduct } from "@/lib/server/catalog";
 import { isApiConfigured } from "@/lib/api/client";
@@ -45,9 +46,10 @@ export default async function HomePage() {
       <Hero hero={home.hero} slides={home.heroSlides} />
       <ProductRing products={featuredPublic} />
       <CollectionsMosaic tiles={tiles} />
+      <DressStudio />
       <FeaturedProducts products={featuredPublic} backendReady={isApiConfigured()} />
       <ScrollMarquee words={collections.map((c) => c.name)} />
-      <ScrollStatement text={STORY_QUOTE} eyebrow="Our story" />
+      <ScrollStatement panel text={STORY_QUOTE} eyebrow="Our story" byline={{ name: FOUNDER.name, role: FOUNDER.role, image: FOUNDER.image }} cta={{ href: "/about", label: "Read our story" }} />
       <HorizontalShowcase eyebrow={showFresh ? "New arrivals" : "Keep exploring"} title={showFresh ? "Just landed" : "More to explore"} items={showcaseItems} href="/shop?sort=newest" linkLabel="Shop all" />
       <PromoBanners banners={banners} />
       <BrandStory story={home.brandStory} />

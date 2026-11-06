@@ -133,7 +133,7 @@ export const MOCK_HOMEPAGE: HomepageContent = {
 };
 
 export const MOCK_BANNERS: Banner[] = [
-  { id: "b1", heading: "The Christmas Collection", description: "Velvet frocks, festive gowns and sets in red, green and gold.", ctaLabel: "Shop Christmas", href: "/collections/christmas-collection", desktopImage: "/art/banner.svg", status: "published", order: 0 },
+  { id: "b1", heading: "The Christmas Collection", description: "Velvet frocks, festive gowns and sets in red, green and gold.", ctaLabel: "Shop Christmas", href: "/collections/christmas-collection", desktopImage: "/art/banner.svg", modelImages: ["/art/cut-xmas-gown.webp", "/art/cut-xmas-green.webp", "/art/cut-xmas-red2.webp"], status: "published", order: 0 },
 ];
 
 export const MOCK_TESTIMONIALS: Testimonial[] = [

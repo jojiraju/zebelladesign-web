@@ -95,6 +95,8 @@ export interface Banner {
   href?: string;
   desktopImage?: string;
   mobileImage?: string;
+  /** Optional cut-out model photos (transparent PNG/WebP). When present the card shows them over a themed backdrop. */
+  modelImages?: string[];
   status: "draft" | "published";
   startsAt?: number | null;
   endsAt?: number | null;

@@ -8,6 +8,8 @@ import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import { EmptyState } from "@/components/ui/Skeletons";
 import type { Banner, FeaturedTile, HomepageContent, StoreSettings, Testimonial } from "@/lib/content";
 import type { Product } from "@/lib/types";
+import { PromoBanner } from "./PromoBanner";
+import { FOUNDER, STORY_CHAPTERS } from "@/lib/story";
 
 export function SectionHead({ eyebrow, title, href, linkLabel = "View all" }: { eyebrow?: string; title: string; href?: string; linkLabel?: string }) {
   return (
@@ -104,34 +106,7 @@ export function PromoBanners({ banners }: { banners: Banner[] }) {
   if (!banners.length) return null;
   return (
     <section className="container-x mt-24 space-y-6 sm:mt-32" aria-label="Promotions">
-      {banners.slice(0, 3).map((b) => (
-        <Reveal key={b.id}>
-          <div className="group relative isolate flex flex-col overflow-hidden rounded-[1.75rem] bg-[#0f2a1d] shadow-[0_40px_80px_-45px_rgba(23,56,42,.8)] sm:min-h-[28rem] sm:flex-row sm:items-center sm:rounded-[2rem]">
-            {/* Phones: artwork on top, text below (so the models are never covered) */}
-            <div className="relative h-72 sm:hidden">
-              <Image src={b.mobileImage || b.desktopImage || "/art/banner.svg"} alt="" fill sizes="100vw" className="object-cover object-[78%_top]" />
-              <div aria-hidden className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0f2a1d] to-transparent" />
-            </div>
-            {/* Desktop: artwork fills the card, anchored right; a soft scrim keeps the text readable */}
-            <ParallaxFrame className="absolute inset-0 -z-20 hidden sm:block" strength={6}>
-              <Image src={b.desktopImage || b.mobileImage || "/art/banner.svg"} alt="" fill sizes="100vw" className="object-cover object-right transition-transform duration-[1800ms] ease-[var(--ease-lux)] group-hover:scale-[1.03]" />
-            </ParallaxFrame>
-            <div aria-hidden className="absolute inset-y-0 left-0 -z-10 hidden w-[58%] bg-gradient-to-r from-[#0f2a1d] via-[#0f2a1d]/80 to-transparent sm:block" />
-
-            <div className="relative w-full px-6 pb-8 pt-2 sm:max-w-[34rem] sm:p-12 lg:p-16">
-              <span className="inline-flex items-center gap-2 rounded-full border border-ivory/30 bg-ivory/10 px-4 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-ivory backdrop-blur"><Sparkles size={13} aria-hidden />Featured edit</span>
-              <h2 className="mt-5 font-serif text-4xl leading-[1.05] text-ivory sm:text-5xl lg:text-6xl">{b.heading}</h2>
-              {b.description && <p className="mt-4 max-w-md text-base leading-7 text-ivory/80 sm:text-lg">{b.description}</p>}
-              {b.ctaLabel && b.href && (
-                <div className="mt-8 flex flex-wrap items-center gap-4">
-                  <Link href={b.href} className="btn btn-light">{b.ctaLabel} <ArrowRight size={16} className="arrow" aria-hidden /></Link>
-                  <Link href="/collections" className="link-underline text-xs font-semibold uppercase tracking-[0.18em] text-ivory/90">All collections</Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </Reveal>
-      ))}
+      {banners.slice(0, 3).map((b) => <PromoBanner key={b.id} banner={b} />)}
     </section>
   );
 }
@@ -139,7 +114,23 @@ export function PromoBanners({ banners }: { banners: Banner[] }) {
 /* ---------- Brand story ---------- */
 const STORY_ICONS = [Scissors, Sparkles, Heart, Gem];
 
-export function BrandStory({ story }: { story: HomepageContent["brandStory"] }) {
+const STORY_POINTS = [
+  { title: "A nurse's heart", text: "Made with the same care a nurse gives." },
+  { title: "Our own label", text: "Our own name stitched inside." },
+  { title: "Starting small", text: "Small in India, dreaming worldwide." },
+];
+
+export function BrandStory({ story: raw }: { story: HomepageContent["brandStory"] }) {
+  // Content can arrive sparse from the backend (e.g. only a heading): fall back so the section always looks complete.
+  const story = {
+    ...raw,
+    eyebrow: raw.eyebrow || "Our Story",
+    heading: raw.heading || "Small, soft, ours.",
+    body: raw.body || `${STORY_CHAPTERS[0].text} ${STORY_CHAPTERS[2].text}`,
+    points: raw.points?.length ? raw.points : STORY_POINTS,
+    imageUrl: raw.imageUrl || FOUNDER.image,
+  };
+  const long = story.heading.length > 48; // a sentence-length heading needs a smaller size than a short title
   return (
     <section className="container-x mt-24 sm:mt-32" aria-labelledby="story-h">
       <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blush/70 via-ivory to-white p-6 shadow-[0_40px_80px_-50px_rgba(143,74,91,.55)] ring-1 ring-line sm:p-10 lg:p-14">
@@ -147,7 +138,7 @@ export function BrandStory({ story }: { story: HomepageContent["brandStory"] }) 
         <div className="relative grid items-center gap-10 md:grid-cols-[1.05fr_1fr] lg:gap-16">
           <div>
             {story.eyebrow && <p className="eyebrow mb-4">{story.eyebrow}</p>}
-            <h2 id="story-h" className="font-serif text-4xl leading-[1.1] sm:text-5xl lg:text-[3.4rem]"><WordReveal text={story.heading ?? ""} /></h2>
+            <h2 id="story-h" className={`font-serif leading-[1.12] ${long ? "text-3xl sm:text-4xl lg:text-[2.6rem]" : "text-4xl sm:text-5xl lg:text-[3.4rem]"}`}><WordReveal text={story.heading} /></h2>
             {story.body && <Reveal delay={0.15}><RichText className="mt-6 max-w-xl text-lg leading-8 text-taupe-deep" html={story.body} /></Reveal>}
 
             {!!story.points?.length && (
@@ -168,8 +159,8 @@ export function BrandStory({ story }: { story: HomepageContent["brandStory"] }) 
             )}
 
             <Reveal delay={0.25} className="mt-9 flex flex-wrap items-center gap-4">
-              <Link href="/about" className="btn btn-solid">Our story <ArrowRight size={15} className="arrow" aria-hidden /></Link>
-              <Link href="/shop" className="link-underline text-xs font-semibold uppercase tracking-[0.18em]">Shop the collection</Link>
+              <Link href="/about" className="btn btn-solid">Read our story <ArrowRight size={15} className="arrow" aria-hidden /></Link>
+              <Link href="/shop" className="btn btn-ghost">Shop the collection</Link>
             </Reveal>
           </div>
 
@@ -180,7 +171,7 @@ export function BrandStory({ story }: { story: HomepageContent["brandStory"] }) 
             <span aria-hidden className="fx-twinkle absolute right-[8%] top-[30%] z-10 h-5 w-5 text-gold" style={{ ["--d" as string]: "0.4s" }}><svg viewBox="-16 -16 32 32"><path d="M0,-14 C1,-5 5,-1 14,0 C5,1 1,5 0,14 C-1,5 -5,1 -14,0 C-5,-1 -1,-5 0,-14 Z" fill="currentColor" /></svg></span>
             <span aria-hidden className="fx-twinkle absolute left-[14%] top-[6%] z-10 h-4 w-4 text-rose" style={{ ["--d" as string]: "1.6s" }}><svg viewBox="-16 -16 32 32"><path d="M0,-14 C1,-5 5,-1 14,0 C5,1 1,5 0,14 C-1,5 -5,1 -14,0 C-5,-1 -1,-5 0,-14 Z" fill="currentColor" /></svg></span>
             <ParallaxFrame className="relative aspect-[4/5] overflow-hidden rounded-t-[999px] rounded-b-[1.75rem] bg-cream shadow-[0_40px_80px_-40px_rgba(35,26,29,.55)]" strength={5}>
-              <Image src={story.imageUrl || "/art/story.svg"} alt="" fill sizes="(min-width:768px) 40vw, 90vw" className="fx-breathe object-cover object-top" />
+              <Image src={story.imageUrl} alt="" fill sizes="(min-width:768px) 40vw, 90vw" className="fx-breathe object-cover object-top" />
             </ParallaxFrame>
             <div className="fx-bob absolute -left-3 top-[18%] flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_20px_40px_-24px_rgba(143,74,91,.7)] sm:-left-6">
               <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-gold to-gold-deep text-white"><Heart size={17} aria-hidden /></span>
