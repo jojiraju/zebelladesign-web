@@ -1,6 +1,7 @@
 "use client";
 import { Heart, Share2 } from "lucide-react";
 import { useWishlist } from "@/components/providers/WishlistProvider";
+import { flySource, flyTo } from "@/lib/fly";
 import { useToast } from "@/components/providers/ToastProvider";
 
 /** Round wishlist + share buttons shown beside the product title. */
@@ -21,7 +22,7 @@ export function ProductActions({ productId, name }: { productId: string; name: s
   return (
     <div className="flex shrink-0 items-center gap-1">
       <button type="button" aria-pressed={wished} aria-label={wished ? "Remove from wishlist" : "Add to wishlist"} className={btn}
-        onClick={() => toast(wish.toggle(productId) ? "Saved to your wishlist" : "Removed from wishlist")}>
+        onClick={(e) => { const added = wish.toggle(productId); if (added) flyTo("wishlist", flySource() ?? e.currentTarget); toast(added ? "Saved to your wishlist" : "Removed from wishlist"); }}>
         <Heart size={22} strokeWidth={1.5} className={`transition-all duration-300 group-hover/a:scale-110 ${wished ? "scale-110 fill-gold-deep text-gold-deep" : ""}`} />
       </button>
       <button type="button" aria-label="Share this product" className={btn} onClick={share}><Share2 size={20} strokeWidth={1.5} className="transition-transform duration-300 group-hover/a:scale-110" /></button>

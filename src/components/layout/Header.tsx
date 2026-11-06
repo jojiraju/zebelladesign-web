@@ -104,11 +104,11 @@ export function Header({ categories, collections }: { categories: Category[]; co
             <Link className={`${iconBtn} hidden sm:grid`} href="/" aria-label="Home" aria-current={isHome ? "page" : undefined}><House size={20} strokeWidth={1.5} className={iconSvg} /></Link>
             <button className={iconBtn} aria-label="Search" onClick={() => setSearch(true)}><Search size={20} strokeWidth={1.5} className={iconSvg} /></button>
             <Link className={`${iconBtn} hidden sm:grid`} href={user ? "/account" : "/login"} aria-label={user ? "My account" : "Sign in"}><User size={20} strokeWidth={1.5} className={iconSvg} /></Link>
-            <Link className={`${iconBtn} hidden sm:grid`} href="/account/wishlist" aria-label={`Wishlist, ${wishlist.ids.length} items`}>
+            <Link data-fly-target="wishlist" className={`${iconBtn} hidden sm:grid`} href="/account/wishlist" aria-label={`Wishlist, ${wishlist.ids.length} items`}>
               <Heart size={20} strokeWidth={1.5} className={iconSvg} />
               {wishlist.ids.length > 0 && <Dot n={wishlist.ids.length} />}
             </Link>
-            <button className={iconBtn} aria-label={`Shopping bag, ${count} items`} onClick={() => openCart(true)}>
+            <button data-fly-target="cart" className={iconBtn} aria-label={`Shopping bag, ${count} items`} onClick={() => openCart(true)}>
               <ShoppingBag size={20} strokeWidth={1.5} className={iconSvg} />
               {count > 0 && <Dot n={count} />}
             </button>

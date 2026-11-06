@@ -5,6 +5,7 @@ import { Check, Heart, Loader2, Minus, Plus, Truck } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useToast } from "@/components/providers/ToastProvider";
+import { flySource, flyTo } from "@/lib/fly";
 import { MAX_QTY_PER_LINE, availableUnits, needsColor, needsSize, resolveVariant } from "@/lib/commerce/catalog-rules";
 import type { Product } from "@/lib/types";
 
@@ -51,15 +52,17 @@ export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hid
     return true;
   }
 
-  async function add(buyNow = false) {
+  async function add(buyNow = false, from?: Element) {
     if (!validate() || !variant) return;
     setPhase("adding");
     cart.add({ productId: product.id, variantId: variant.id, quantity: qty });
+    // fly from the photo if it is on screen, otherwise from the button you pressed (e.g. on phones, where the photo has scrolled away)
+    if (!buyNow) flyTo("cart", flySource() ?? from, product.images[0]?.url);
     await new Promise((r) => setTimeout(r, 350)); // brief, deliberate feedback beat
     setPhase("added");
     toast(`${product.name} added to your bag`);
     onAdded?.();
-    if (buyNow) router.push("/checkout"); else { cart.setOpen(true); setTimeout(() => setPhase("idle"), 1800); }
+    if (buyNow) router.push("/checkout"); else { setTimeout(() => cart.setOpen(true), 800); /* let the photo land in the bag first */ setTimeout(() => setPhase("idle"), 1800); }
   }
 
   const wished = wish.has(product.id);
@@ -111,13 +114,13 @@ export function ProductPurchase({ product, sizeGuide, deliveryNote, onAdded, hid
       {error && <p role="alert" className="mt-4 text-sm text-danger">{error}</p>}
 
       <div className={`${compact ? "mt-4 flex-row items-stretch gap-2" : "mt-8 flex-col gap-3"} flex`}>
-        <button type="button" className={`btn btn-ghost !min-h-12 ${compact ? "min-w-0 flex-1 !px-3" : "w-full"} !text-sm !normal-case !tracking-[0.08em]`} disabled={unavailable || phase === "adding"} onClick={() => add(false)}>
+        <button type="button" className={`btn btn-ghost !min-h-12 ${compact ? "min-w-0 flex-1 !px-3" : "w-full"} !text-sm !normal-case !tracking-[0.08em]`} disabled={unavailable || phase === "adding"} onClick={(e) => add(false, e.currentTarget)}>
           {phase === "adding" ? <Loader2 size={16} className="animate-spin" /> : phase === "added" ? <><Check size={16} /> Added</> : unavailable ? "Out of stock" : <>Add to Cart</>}
         </button>
         <div className={compact ? "contents" : "flex gap-3"}>
           <button type="button" className={`btn btn-solid !min-h-12 ${compact ? "min-w-0 !px-3" : "w-full"} flex-1 !text-sm !normal-case !tracking-[0.08em]`} disabled={unavailable || phase === "adding"} onClick={() => add(true)}>Buy Now</button>
           {!hideWishlist && (
-            <button type="button" onClick={() => { const added = wish.toggle(product.id); toast(added ? "Saved to your wishlist" : "Removed from wishlist"); }} aria-pressed={wished} aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+            <button type="button" onClick={(e) => { const added = wish.toggle(product.id); if (added) flyTo("wishlist", flySource() ?? e.currentTarget, product.images[0]?.url); toast(added ? "Saved to your wishlist" : "Removed from wishlist"); }} aria-pressed={wished} aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
               className={`btn btn-ghost !min-h-12 shrink-0 !px-0 ${compact ? "w-12" : "w-14"}`}><Heart size={18} className={`transition-all duration-300 ${wished ? "scale-110 fill-gold-deep text-gold-deep" : ""}`} /></button>
           )}
         </div>

@@ -64,7 +64,7 @@ export function ParallaxFrame({ children, className = "", strength = 8 }: { chil
 
   return (
     <div ref={frame} className={`overflow-hidden ${className}`}>
-      <div ref={inner} className="h-[116%] w-full -translate-y-[0%] will-change-transform">{children}</div>
+      <div ref={inner} className="relative h-[116%] w-full -translate-y-[0%] will-change-transform">{children}</div>
     </div>
   );
 }

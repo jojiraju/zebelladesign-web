@@ -69,7 +69,7 @@ export function ProductGallery({ images, name, videoUrl }: { images: ProductImag
         {/* mobile: native snap carousel */}
         <div ref={track} className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto lg:hidden" onScroll={(e) => { const t = e.currentTarget; const n = Math.round(t.scrollLeft / t.clientWidth); if (n !== i) setI(n); }}>
           {slides.map((s, n) => (
-            <div key={n} className="relative aspect-[3/4] w-full shrink-0 snap-center overflow-hidden bg-cream">
+            <div key={n} data-fly-source className="relative aspect-[3/4] w-full shrink-0 snap-center overflow-hidden bg-cream">
               {s.type === "image" ? <Image src={s.img.url} alt={s.img.alt || `${name} — view ${n + 1}`} fill priority={n === 0} sizes="100vw" className="object-cover" onClick={() => setFull(true)} /> : <video src={s.url} controls playsInline className="h-full w-full object-cover" />}
             </div>
           ))}
@@ -78,7 +78,7 @@ export function ProductGallery({ images, name, videoUrl }: { images: ProductImag
         {/* desktop: lens on the photo + a magnified pane that opens to the right.
             The gallery sits at z-20, so the pane is always painted ABOVE the details column (never interleaved with it). */}
         <div className="relative hidden lg:block lg:w-full">
-          <div className="relative aspect-[4/5] cursor-crosshair overflow-hidden bg-cream"
+          <div data-fly-source className="relative aspect-[4/5] cursor-crosshair overflow-hidden bg-cream"
             onMouseMove={(e) => { if (cur.type !== "image") return; const r = e.currentTarget.getBoundingClientRect(); setZoom({ x: Math.min(80, Math.max(20, ((e.clientX - r.left) / r.width) * 100)), y: Math.min(80, Math.max(20, ((e.clientY - r.top) / r.height) * 100)) }); }}
             onMouseLeave={() => setZoom(null)} onClick={() => cur.type === "image" && setFull(true)}>
             <AnimatePresence mode="wait">

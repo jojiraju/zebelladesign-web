@@ -1,4 +1,5 @@
 "use client";
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Heart, Lock, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
@@ -31,6 +32,8 @@ function EmptyBag({ onNavigate, variant }: { onNavigate?: () => void; variant: V
 }
 
 function Line({ l, compact, onNavigate }: { l: PricedLine; compact: boolean; onNavigate?: () => void }) {
+  const row = useRef<HTMLLIElement>(null);
+  const leaving = useRef(false);
   const cart = useCart();
   const wish = useWishlist();
   const toast = useToast();
@@ -38,14 +41,32 @@ function Line({ l, compact, onNavigate }: { l: PricedLine; compact: boolean; onN
   const max = Math.min(MAX_QTY_PER_LINE, l.available || MAX_QTY_PER_LINE);
   const onSale = l.listPrice > l.unitPrice;
 
+  /** Slides the row away, then folds it up so the rows below glide into the gap; `done` removes it from the bag afterwards. */
+  function leave(done: () => void) {
+    const el = row.current;
+    if (!el || leaving.current) return;
+    leaving.current = true;
+    if (!el.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) { done(); return; }
+    const h = `${el.offsetHeight}px`;
+    el.style.overflow = "hidden"; el.style.pointerEvents = "none";
+    const gone = { opacity: 0, transform: "translateX(-72px) scale(.92) rotate(-3deg)" };
+    const a = el.animate([
+      { opacity: 1, transform: "translateX(0) scale(1) rotate(0)", height: h },
+      { ...gone, height: h, offset: 0.5 },
+      { ...gone, height: "0px", paddingTop: "0px", paddingBottom: "0px", marginTop: "0px", marginBottom: "0px", borderTopWidth: "0px", borderBottomWidth: "0px", offset: 1 },
+    ], { duration: 560, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
+    a.onfinish = done;
+    a.oncancel = () => { leaving.current = false; };
+  }
+
   function saveForLater() {
     if (!wish.has(l.productId)) wish.toggle(l.productId);
-    cart.remove(l.productId, l.variantId);
+    leave(() => cart.remove(l.productId, l.variantId));
     toast("Saved to your wishlist");
   }
 
   return (
-    <li className={compact ? "flex gap-3.5 py-4" : "flex gap-4 rounded-2xl border border-line bg-white p-4 shadow-[0_18px_40px_-34px_rgba(143,74,91,.6)] sm:gap-5 sm:p-5"}>
+    <li ref={row} className={compact ? "flex gap-3.5 py-4" : "flex gap-4 rounded-2xl border border-line bg-white p-4 shadow-[0_18px_40px_-34px_rgba(143,74,91,.6)] sm:gap-5 sm:p-5"}>
       <Link href={l.slug ? `/products/${l.slug}` : "#"} onClick={onNavigate} className={`relative block shrink-0 overflow-hidden rounded-xl bg-cream ${compact ? "aspect-[3/4] w-20" : "aspect-[3/4] w-24 sm:w-32"}`}>
         {loading ? <div className="skeleton h-full w-full" /> : <Image src={l.image || ART.productPlaceholder} alt="" fill sizes="128px" className="object-cover object-top" />}
       </Link>
@@ -58,7 +79,7 @@ function Line({ l, compact, onNavigate }: { l: PricedLine; compact: boolean; onN
               {l.color && <span className="rounded-full bg-blush/70 px-2.5 py-0.5 text-[0.66rem] font-medium uppercase tracking-wider text-taupe-deep">{l.color}</span>}
             </p>
           </div>
-          {compact && <button onClick={() => cart.remove(l.productId, l.variantId)} aria-label={`Remove ${l.name}`} className="-m-1.5 grid h-9 w-9 shrink-0 place-items-center rounded-full text-taupe-deep transition hover:bg-blush hover:text-danger"><Trash2 size={16} strokeWidth={1.5} /></button>}
+          {compact && <button onClick={() => leave(() => cart.remove(l.productId, l.variantId))} aria-label={`Remove ${l.name}`} className="-m-1.5 grid h-9 w-9 shrink-0 place-items-center rounded-full text-taupe-deep transition hover:bg-blush hover:text-danger"><Trash2 size={16} strokeWidth={1.5} /></button>}
         </div>
         {l.issue && <p role="alert" className="mt-2 text-sm text-danger">{l.issue}</p>}
 
@@ -77,7 +98,7 @@ function Line({ l, compact, onNavigate }: { l: PricedLine; compact: boolean; onN
         {!compact && !loading && (
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 border-t border-line pt-3 text-[0.68rem] font-medium uppercase tracking-[0.1em] text-taupe-deep sm:gap-x-5 sm:text-xs sm:tracking-[0.14em] [&_button]:whitespace-nowrap">
             <button onClick={saveForLater} className="inline-flex items-center gap-1.5 transition hover:text-espresso"><Heart size={14} aria-hidden />Save for later</button>
-            <button onClick={() => cart.remove(l.productId, l.variantId)} className="inline-flex items-center gap-1.5 transition hover:text-danger"><Trash2 size={14} aria-hidden />Remove</button>
+            <button onClick={() => leave(() => cart.remove(l.productId, l.variantId))} className="inline-flex items-center gap-1.5 transition hover:text-danger"><Trash2 size={14} aria-hidden />Remove</button>
           </div>
         )}
       </div>

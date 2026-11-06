@@ -35,7 +35,7 @@ export function QuickView({ product, onClose }: { product: Product; onClose(): v
         <button onClick={onClose} aria-label="Close quick view" className="absolute right-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full bg-white/90 shadow-md outline-none transition hover:rotate-90 hover:bg-blush focus-visible:ring-2 focus-visible:ring-gold-deep"><X size={19} /></button>
 
         {/* Photo */}
-        <div className="relative min-h-0 bg-cream">
+        <div data-fly-source className="relative min-h-0 bg-cream">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div key={img} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
               <Image src={images[img].url} alt={images[img].alt || product.name} fill sizes="(min-width:640px) 480px, 100vw" className="object-cover object-top" priority />

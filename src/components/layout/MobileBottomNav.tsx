@@ -31,7 +31,7 @@ function Bar() {
         {ITEMS.map(({ key, label, full, href, Icon, active }) => {
           const on = active(path, sort);
           return (
-            <Link key={key} href={href} aria-label={full} aria-current={on ? "page" : undefined} className={`${cell} ${on ? "text-gold-deep" : "text-taupe-deep hover:text-gold-deep"}`}>
+            <Link key={key} href={href} data-fly-target={key === "wishlist" ? "wishlist" : undefined} aria-label={full} aria-current={on ? "page" : undefined} className={`${cell} ${on ? "text-gold-deep" : "text-taupe-deep hover:text-gold-deep"}`}>
               {on && <motion.span layoutId="bottom-nav-pill" className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-b from-blush to-white shadow-[inset_0_0_0_1px_rgba(185,110,124,.25)]" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
               <motion.span whileHover={{ y: -3, scale: 1.12 }} whileTap={{ scale: 0.85, rotate: -6 }} animate={on ? { y: -2, scale: 1.1 } : { y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 18 }}>
                 <Icon size={21} fill={on ? "currentColor" : "none"} strokeWidth={on ? 1.6 : 1.8} />
@@ -40,7 +40,7 @@ function Bar() {
             </Link>
           );
         })}
-        <button type="button" onClick={() => setOpen(true)} aria-label={`Cart, ${count} items`} className={`${cell} text-taupe-deep hover:text-gold-deep`}>
+        <button type="button" data-fly-target="cart" onClick={() => setOpen(true)} aria-label={`Cart, ${count} items`} className={`${cell} text-taupe-deep hover:text-gold-deep`}>
           <motion.span className="relative" whileHover={{ y: -3, scale: 1.12 }} whileTap={{ scale: 0.85, rotate: -6 }} transition={{ type: "spring", stiffness: 400, damping: 18 }}>
             <ShoppingCart size={21} strokeWidth={1.8} />
             {count > 0 && (
@@ -75,7 +75,7 @@ function Rail() {
           const on = active(path, sort);
           return (
             <li key={key}>
-              <Link href={href} aria-label={full} aria-current={on ? "page" : undefined} className={`${btn} ${on ? "text-gold-deep" : "text-taupe-deep hover:text-gold-deep"}`}>
+              <Link href={href} data-fly-target={key === "wishlist" ? "wishlist" : undefined} aria-label={full} aria-current={on ? "page" : undefined} className={`${btn} ${on ? "text-gold-deep" : "text-taupe-deep hover:text-gold-deep"}`}>
                 {on && <motion.span layoutId="side-nav-pill" className="absolute inset-0 rounded-full bg-gradient-to-b from-blush to-white shadow-[inset_0_0_0_1px_rgba(185,110,124,.3)]" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
                 <motion.span className="relative" whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.85 }} transition={{ type: "spring", stiffness: 400, damping: 18 }}>
                   <Icon size={20} fill={on ? "currentColor" : "none"} strokeWidth={on ? 1.6 : 1.6} aria-hidden />
@@ -86,7 +86,7 @@ function Rail() {
           );
         })}
         <li>
-          <button type="button" onClick={() => setOpen(true)} aria-label={`Cart, ${count} items`} className={`${btn} text-taupe-deep hover:text-gold-deep`}>
+          <button type="button" data-fly-target="cart" onClick={() => setOpen(true)} aria-label={`Cart, ${count} items`} className={`${btn} text-taupe-deep hover:text-gold-deep`}>
             <motion.span className="relative" whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.85 }} transition={{ type: "spring", stiffness: 400, damping: 18 }}>
               <ShoppingCart size={20} strokeWidth={1.6} aria-hidden />
               {count > 0 && <motion.span key={count} initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -right-2 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-gold-deep px-1 text-[0.6rem] text-white">{count > 99 ? "99+" : count}</motion.span>}

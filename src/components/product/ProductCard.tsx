@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { flyTo } from "@/lib/fly";
 import { ART } from "@/lib/art";
 import { Eye, Heart } from "lucide-react";
 import { Price } from "@/components/ui/Price";
@@ -27,7 +28,7 @@ export function ProductCard({ product, priority = false, sizes = "(min-width:102
 
   return (
     <article className="group relative transition-transform duration-500 ease-[var(--ease-lux)] hover:-translate-y-1.5">
-      <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-cream shadow-sm transition-shadow duration-500 group-hover:shadow-[0_28px_50px_-24px_rgba(143,74,91,.55)]">
+      <div data-fly-card className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-cream shadow-sm transition-shadow duration-500 group-hover:shadow-[0_28px_50px_-24px_rgba(143,74,91,.55)]">
         <Link href={`/products/${product.slug}`} aria-label={product.name} className="absolute inset-0 z-[1]">
           {img1 ? (
             <>
@@ -39,7 +40,7 @@ export function ProductCard({ product, priority = false, sizes = "(min-width:102
         </Link>
         {badge && <span className="absolute left-3 top-3 z-[2] rounded-full bg-ivory px-3 py-1 text-[0.62rem] font-medium uppercase tracking-[0.22em]">{badge}</span>}
         <button type="button" aria-pressed={wished} aria-label={wished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-          onClick={() => toast(wish.toggle(product.id) ? "Saved to your wishlist" : "Removed from wishlist")}
+          onClick={(e) => { const added = wish.toggle(product.id); if (added) flyTo("wishlist", e.currentTarget.closest("[data-fly-card]"), img1?.url); toast(added ? "Saved to your wishlist" : "Removed from wishlist"); }}
           className="absolute right-2 top-2 z-[2] grid h-10 w-10 place-items-center rounded-full bg-ivory/85 backdrop-blur transition hover:bg-ivory">
           <Heart size={17} strokeWidth={1.5} className={`transition-all duration-300 ${wished ? "scale-110 fill-gold-deep text-gold-deep" : ""}`} />
         </button>
