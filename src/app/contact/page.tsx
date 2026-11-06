@@ -97,7 +97,7 @@ export default async function ContactPage() {
           <div className="relative hidden aspect-[4/5] overflow-hidden rounded-2xl lg:block">
             <Image src="/art/tile-signature.svg" alt="" fill sizes="22rem" className="object-cover object-top" />
             <div className="absolute inset-0 bg-gradient-to-t from-espresso/70 via-transparent to-transparent" aria-hidden />
-            <p className="absolute inset-x-0 bottom-0 p-6 font-serif text-2xl leading-snug text-ivory">Dressed for every occasion — and here for every question.</p>
+            <p className="absolute inset-x-0 bottom-0 p-6 font-serif text-2xl leading-snug text-ivory">Elegant dresses for every occasion — and here for every question.</p>
           </div>
         </aside>
       </div>

@@ -155,7 +155,7 @@ export function AuthCard({ mode }: { mode: Mode }) {
         <aside className="relative hidden overflow-hidden bg-gradient-to-br from-gold via-gold-deep to-wine p-10 text-ivory lg:flex lg:flex-col">
           <Logo light />
           <div className="mt-6 max-w-sm">
-            <h2 className="font-serif text-4xl leading-[1.1]">Dressed for every occasion.</h2>
+            <h2 className="font-serif text-4xl leading-[1.1]">Elegant dresses for every occasion.</h2>
             <p className="mt-3 text-sm leading-6 text-ivory/85">Discover handcrafted ethnic and contemporary collections, curated for you.</p>
           </div>
           <AuthIllustration className="mx-auto my-4 h-auto w-full max-w-[19rem] drop-shadow-[0_20px_30px_rgba(35,26,29,.25)]" />

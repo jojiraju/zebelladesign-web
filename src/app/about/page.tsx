@@ -195,7 +195,7 @@ export default async function AboutPage() {
           <div aria-hidden className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-ivory/10" />
           <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-10 h-72 w-72 rounded-full border border-ivory/20" />
           <p className="eyebrow relative justify-center !text-ivory/85">Find your next favourite</p>
-          <h2 className="relative mx-auto mt-4 max-w-2xl font-serif text-4xl leading-tight sm:text-6xl">Dressed for every occasion</h2>
+          <h2 className="relative mx-auto mt-4 max-w-2xl font-serif text-4xl leading-tight sm:text-6xl">Elegant dresses for every occasion</h2>
           <p className="relative mx-auto mt-4 max-w-lg text-ivory/85">Explore the latest collections, or get in touch — we&apos;re always happy to help you find the perfect fit.</p>
           <div className="relative mt-8 flex flex-wrap justify-center gap-3"><Link href="/shop" className="btn btn-light">Shop now <ArrowRight size={15} className="arrow" aria-hidden /></Link><Link href="/contact" className="btn btn-outline-light">Contact us</Link></div>
         </div>
