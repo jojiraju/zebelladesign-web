@@ -56,9 +56,9 @@ function ZBLogo() {
   );
 }
 
-export default function EmblemScene() {
+export default function EmblemScene({ active = true }: { active?: boolean }) {
   return (
-    <Canvas dpr={[1, 1.75]} camera={{ position: [0, 0, 7], fov: 40 }} gl={{ antialias: true, alpha: true, powerPreference: "low-power" }} frameloop="always">
+    <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 7], fov: 40 }} gl={{ antialias: true, alpha: true, powerPreference: "low-power" }} frameloop={active ? "always" : "never"}>
       <ambientLight intensity={0.9} />
       <directionalLight position={[3, 4, 5]} intensity={3.2} color="#fff1f4" />
       <directionalLight position={[-4, -2, 3]} intensity={1.8} color="#f0b5c2" />

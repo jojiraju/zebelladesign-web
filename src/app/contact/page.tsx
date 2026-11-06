@@ -5,12 +5,21 @@ import { ArrowRight, Clock, Mail, MapPin, PackageSearch, Phone, Plus, RotateCcw,
 import { RichText } from "@/components/ui/RichText";
 import { ContactForm } from "@/components/pages/Forms";
 import { ART } from "@/lib/art";
+import { Rise3D, TiltCard } from "@/components/ui/fx";
+import { ScrollMarquee } from "@/components/home/ScrollMarquee";
 import { getSettings } from "@/lib/server/catalog";
 
 export const revalidate = 60;
 export const metadata: Metadata = { title: "Contact", description: "Get in touch with Zebella Designs.", alternates: { canonical: "/contact" } };
 
 const card = "rounded-2xl border border-line bg-white shadow-[0_18px_40px_-34px_rgba(143,74,91,.6)]";
+
+const FAST = [
+  { icon: PackageSearch, title: "Track an order", text: "Enter your order details to see where your parcel is.", href: "/order-tracking" },
+  { icon: Truck, title: "Shipping", text: "Delivery areas, timelines and charges.", href: "/shipping-policy" },
+  { icon: RotateCcw, title: "Returns & refunds", text: "How to return a piece and how refunds work.", href: "/returns-policy" },
+  { icon: Mail, title: "Ask about size or fit", text: "Tell us your measurements and we will help you choose.", href: "#message" },
+];
 
 export default async function ContactPage() {
   const { contact, social, faq } = await getSettings();
@@ -55,11 +64,11 @@ export default async function ContactPage() {
               </>
             );
             return (
-              <li key={label}>
-                {href
+              <Rise3D as="li" key={label}>
+                <TiltCard className="rounded-2xl">{href
                   ? <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className={`${card} block h-full p-6 transition hover:-translate-y-0.5 hover:border-gold`}>{body}</a>
-                  : <div className={`${card} h-full p-6`}>{body}</div>}
-              </li>
+                  : <div className={`${card} h-full p-6`}>{body}</div>}</TiltCard>
+              </Rise3D>
             );
           })}
         </ul>
@@ -101,6 +110,30 @@ export default async function ContactPage() {
           </div>
         </aside>
       </div>
+
+      {/* Fast answers: 3D cards */}
+      <section className="mt-16 sm:mt-24" aria-labelledby="fast-h">
+        <div className="mb-8 text-center"><p className="eyebrow justify-center">Need something quicker?</p><h2 id="fast-h" className="mt-3 font-serif text-4xl sm:text-5xl">Find your answer fast</h2></div>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+          {FAST.map(({ icon: Icon, title, text, href }, i) => (
+            <Rise3D as="li" key={title} delay={i * 0.08} className="h-full">
+              <TiltCard className="rounded-[1.75rem]">
+                <Link href={href} className="group relative flex h-full min-h-[14rem] flex-col overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-blush to-cream p-6 shadow-[0_30px_60px_-42px_rgba(143,74,91,.7)] ring-1 ring-line">
+                  <Icon aria-hidden size={130} strokeWidth={0.7} className="pointer-events-none absolute -bottom-6 -right-6 text-gold-deep/15 transition duration-700 group-hover:-rotate-6 group-hover:scale-110" />
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-white text-gold-deep shadow-md ring-1 ring-line transition duration-500 group-hover:bg-gradient-to-br group-hover:from-rose-soft group-hover:to-gold-deep group-hover:text-white"><Icon size={20} strokeWidth={1.5} aria-hidden /></span>
+                  <span className="relative mt-auto block pt-8">
+                    <span className="block font-serif text-2xl leading-tight">{title}</span>
+                    <span className="mt-2 block max-w-[15rem] text-sm leading-6 text-taupe-deep">{text}</span>
+                    <span className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gold-deep">Open <ArrowRight size={14} className="transition-transform duration-500 group-hover:translate-x-1" aria-hidden /></span>
+                  </span>
+                </Link>
+              </TiltCard>
+            </Rise3D>
+          ))}
+        </ul>
+      </section>
+
+      <div className="relative left-1/2 w-screen -translate-x-1/2"><ScrollMarquee words={["Say hello", "Ask us anything", "Write to us"]} /></div>
 
       {/* FAQ */}
       {faq.length > 0 && (

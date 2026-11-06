@@ -73,7 +73,7 @@ export function MobileDrawer({ open, onClose, categories, collections }: { open:
               <button onClick={onClose} aria-label="Close menu" className="grid h-11 w-11 place-items-center rounded-full border border-line bg-white transition hover:bg-blush"><X size={20} strokeWidth={1.5} /></button>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
+            <div data-lenis-prevent className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
               {/* Account card */}
               {user ? (
                 <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-gold via-gold-deep to-wine p-4 text-ivory">

@@ -1,5 +1,13 @@
 import { Hero } from "@/components/home/Hero";
 import { Emblem } from "@/components/home/Emblem";
+import { ProductRing } from "@/components/home/ProductRing";
+import { ScrollMarquee } from "@/components/home/ScrollMarquee";
+import { ScrollStatement } from "@/components/ui/fx";
+import { HorizontalShowcase, type ShowcaseItem } from "@/components/ui/HorizontalShowcase";
+import { ART } from "@/lib/art";
+import { formatINR } from "@/lib/commerce/money";
+import { effectivePrice } from "@/lib/commerce/catalog-rules";
+import { STORY_QUOTE } from "@/lib/story";
 import { BrandStory, CollectionsMosaic, FeaturedProducts, PromoBanners, SocialGallery, Testimonials } from "@/components/home/Sections";
 import { getBanners, getCollections, getHomepage, getPublishedProducts, getSettings, getTestimonials, toPublicProduct } from "@/lib/server/catalog";
 import { isApiConfigured } from "@/lib/api/client";
@@ -18,6 +26,14 @@ export default async function HomePage() {
   if (!featured.length) featured = products.filter((p) => p.featured);
   if (!featured.length) featured = products;
   featured = featured.slice(0, 8);
+  const featuredPublic = featured.map(toPublicProduct);
+
+  // "Just landed" showcase: new arrivals that are not already in the featured ring (falls back to anything not featured).
+  const featuredIds = new Set(featured.map((p) => p.id));
+  const fresh = products.filter((p) => p.newArrival && !featuredIds.has(p.id));
+  const showFresh = fresh.length >= 4;
+  const lookbook = (showFresh ? fresh : products.filter((p) => !featuredIds.has(p.id))).slice(0, 10).map(toPublicProduct);
+  const showcaseItems: ShowcaseItem[] = lookbook.map((p) => ({ title: p.name, subtitle: formatINR(effectivePrice(p)), imageUrl: p.images[0]?.url || ART.productPlaceholder, href: `/products/${p.slug}` }));
 
   // Collection tiles: CMS-curated -> visible collections -> built-in editorial defaults.
   let tiles: FeaturedTile[] = home.featuredCollections;
@@ -27,8 +43,12 @@ export default async function HomePage() {
   return (
     <>
       <Hero hero={home.hero} slides={home.heroSlides} />
+      <ProductRing products={featuredPublic} />
       <CollectionsMosaic tiles={tiles} />
-      <FeaturedProducts products={featured.map(toPublicProduct)} backendReady={isApiConfigured()} />
+      <FeaturedProducts products={featuredPublic} backendReady={isApiConfigured()} />
+      <ScrollMarquee words={collections.map((c) => c.name)} />
+      <ScrollStatement text={STORY_QUOTE} eyebrow="Our story" />
+      <HorizontalShowcase eyebrow={showFresh ? "New arrivals" : "Keep exploring"} title={showFresh ? "Just landed" : "More to explore"} items={showcaseItems} href="/shop?sort=newest" linkLabel="Shop all" />
       <PromoBanners banners={banners} />
       <BrandStory story={home.brandStory} />
       <Emblem message={home.editorialMessage || "Designed to be remembered."} />

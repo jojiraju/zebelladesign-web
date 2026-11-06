@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers/Providers";
+import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -29,6 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
       <body className="flex min-h-screen flex-col pb-24 min-[1440px]:pb-0">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-espresso focus:px-4 focus:py-2 focus:text-ivory">Skip to content</a>
+        <SmoothScroll />
         <Providers>
           <AnnouncementBar items={settings.announcements} />
           <Header categories={categories} collections={collections} />

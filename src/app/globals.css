@@ -123,7 +123,7 @@ h1, h2, h3, .font-serif { font-family: var(--font-serif); font-weight: 400; lett
 .prose-policy p { margin-bottom: 1rem; color: var(--color-taupe-deep); white-space: pre-line; }
 
 /* ---------- glass / modern surfaces ---------- */
-.glass { background: rgba(255,255,255,.72); backdrop-filter: blur(18px) saturate(1.4); border: 1px solid rgba(255,255,255,.8); }
+.glass { background: rgba(255,255,255,.72); backdrop-filter: blur(12px) saturate(1.3); border: 1px solid rgba(255,255,255,.8); }
 .text-gradient { background: linear-gradient(120deg, var(--color-gold-deep), var(--color-gold) 50%, var(--color-rose-soft)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
 /* ---------- CMS rich text ---------- */
@@ -168,4 +168,6 @@ h1, h2, h3, .font-serif { font-family: var(--font-serif); font-weight: 400; lett
 @keyframes fx-spin { to { transform: rotate(360deg); } }
 .fx-twinkle { animation: fx-twinkle 3.4s ease-in-out infinite; animation-delay: var(--d, 0s); }
 @keyframes fx-twinkle { 0%, 100% { opacity: .2; transform: scale(.5) rotate(0); } 50% { opacity: 1; transform: scale(1.1) rotate(45deg); } }
+/* Big blurred blobs must not animate: re-blurring a large layer every frame janks scrolling. */
+[class*="blur-"].fx-drift, .aurora { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .fx-breathe, .fx-bob, .fx-drift, .fx-spin, .fx-twinkle { animation: none !important; } }

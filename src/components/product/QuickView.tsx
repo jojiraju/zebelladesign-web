@@ -58,7 +58,7 @@ export function QuickView({ product, onClose }: { product: Product; onClose(): v
 
         {/* Details */}
         <div className="flex min-h-0 flex-col">
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-3 pt-5 sm:px-8 sm:pt-7 no-scrollbar">
+          <div data-lenis-prevent className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-3 pt-5 sm:px-8 sm:pt-7 no-scrollbar">
             <p className="eyebrow">{product.categorySlug.replace(/-/g, " ")}</p>
             <h2 className="mt-2 pr-12 font-serif text-3xl leading-[1.1] sm:text-[2rem]">{product.name}</h2>
             <Price product={product} className="mt-2" size="lg" />

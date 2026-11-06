@@ -5,6 +5,8 @@ import { ArrowRight, Gem, Heart, Palette, PackageCheck, RotateCcw, Scissors, Shi
 import { collectionArt } from "@/lib/art";
 import { getCollections, getHomepage } from "@/lib/server/catalog";
 import { Reveal, WordReveal } from "@/components/ui/motion";
+import { Rise3D, ScrollStatement, TiltCard } from "@/components/ui/fx";
+import { ScrollMarquee } from "@/components/home/ScrollMarquee";
 import { FOUNDER, STORY_CHAPTERS, STORY_QUOTE } from "@/lib/story";
 
 export const revalidate = 60;
@@ -67,6 +69,8 @@ export default async function AboutPage() {
         </Reveal>
       </section>
 
+      <ScrollStatement text={STORY_CHAPTERS[4].text} eyebrow="Our own label" />
+
       {/* ---------- Values ---------- */}
       <section className="container-x mt-24 sm:mt-32" aria-labelledby="values-h">
         <div className="mb-10 max-w-xl"><p className="eyebrow mb-3">What we stand for</p><h2 id="values-h" className="font-serif text-4xl sm:text-5xl">Fashion with <span className="text-gradient">intention</span></h2></div>
@@ -74,13 +78,13 @@ export default async function AboutPage() {
           {values.map((v, i) => {
             const Icon = VALUE_ICONS[i % VALUE_ICONS.length];
             return (
-              <Reveal as="li" key={v.title} delay={i * 0.08}>
-                <div className={`${card} h-full p-7 transition hover:-translate-y-1 hover:border-gold`}>
+              <Rise3D as="li" key={v.title} delay={i * 0.08}>
+                <TiltCard className={`${card} p-7 hover:border-gold`}>
                   <span className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-blush to-rose-soft/60 text-gold-deep"><Icon size={24} strokeWidth={1.5} aria-hidden /></span>
                   <h3 className="mt-6 font-serif text-2xl">{v.title}</h3>
                   <p className="mt-2 leading-7 text-taupe-deep">{v.text}</p>
-                </div>
-              </Reveal>
+                </TiltCard>
+              </Rise3D>
             );
           })}
         </ul>
@@ -123,6 +127,8 @@ export default async function AboutPage() {
         </div>
       </section>
 
+      <ScrollMarquee words={values.map((v) => v.title)} />
+
       {/* ---------- Process ---------- */}
       <section className="container-x mt-24 sm:mt-32" aria-labelledby="process-h">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-espresso via-[#3a2029] to-wine px-5 py-14 text-ivory shadow-[0_40px_90px_-50px_rgba(35,26,29,.8)] sm:px-10 sm:py-20 lg:px-14">
@@ -136,15 +142,15 @@ export default async function AboutPage() {
           <ol className="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
             <span aria-hidden className="pointer-events-none absolute left-[12%] right-[12%] top-7 hidden border-t border-dashed border-ivory/25 lg:block" />
             {PROCESS.map(({ icon: Icon, title, text }, i) => (
-              <Reveal as="li" key={title} delay={i * 0.1}>
-                <div className="group relative h-full rounded-3xl border border-ivory/10 bg-ivory/[0.06] p-6 pt-9 backdrop-blur-sm transition duration-500 hover:-translate-y-1.5 hover:border-rose-soft/40 hover:bg-ivory/[0.1] lg:mt-7">
+              <Rise3D as="li" key={title} delay={i * 0.1}>
+                <TiltCard className="group relative rounded-3xl border border-ivory/10 bg-ivory/[0.06] p-6 pt-9 backdrop-blur-sm transition duration-500 hover:-translate-y-1.5 hover:border-rose-soft/40 hover:bg-ivory/[0.1] lg:mt-7">
                   <span className="absolute -top-7 left-6 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-rose-soft to-gold-deep text-white shadow-[0_14px_30px_-10px_rgba(0,0,0,.6)] ring-4 ring-[#3a2029] transition duration-500 group-hover:scale-110"><Icon size={22} strokeWidth={1.5} aria-hidden /></span>
                   <span aria-hidden className="absolute right-5 top-3 font-serif text-6xl leading-none text-transparent [-webkit-text-stroke:1px_rgba(253,248,246,.28)]">{String(i + 1).padStart(2, "0")}</span>
                   <p className="text-[0.66rem] font-semibold uppercase tracking-[0.24em] text-rose-soft">Step {i + 1}</p>
                   <h3 className="mt-2 font-serif text-3xl">{title}</h3>
                   <p className="mt-3 text-sm leading-6 text-ivory/70">{text}</p>
-                </div>
-              </Reveal>
+                </TiltCard>
+              </Rise3D>
             ))}
           </ol>
         </div>
@@ -156,13 +162,15 @@ export default async function AboutPage() {
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow mb-3">Explore</p><h2 id="col-h" className="font-serif text-4xl sm:text-5xl">Our collections</h2></div><Link href="/collections" className="link-underline text-xs font-semibold uppercase tracking-[0.18em]">View all</Link></div>
           <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {collections.slice(0, 4).map((c, i) => (
-              <Reveal as="li" key={c.id} delay={i * 0.06}>
+              <Rise3D as="li" key={c.id} delay={i * 0.06}>
+                <TiltCard className="rounded-2xl">
                 <Link href={`/collections/${c.slug}`} className="group relative block aspect-[3/4] overflow-hidden rounded-2xl bg-cream">
                   <Image src={collectionArt(c.imageUrl, i)} alt="" fill sizes="(min-width:1024px) 22vw, 45vw" className="object-cover object-top transition-transform duration-[1400ms] ease-[var(--ease-lux)] group-hover:scale-105" />
                   <span className="absolute inset-0 bg-gradient-to-t from-espresso/75 via-transparent to-transparent" aria-hidden />
                   <span className="absolute inset-x-0 bottom-0 p-5 font-serif text-2xl leading-tight text-ivory">{c.name}<ArrowRight size={16} className="mt-2 transition-transform group-hover:translate-x-1" aria-hidden /></span>
                 </Link>
-              </Reveal>
+                </TiltCard>
+              </Rise3D>
             ))}
           </ul>
         </section>
@@ -173,8 +181,8 @@ export default async function AboutPage() {
         <div className="mb-10 text-center"><p className="eyebrow justify-center">Our promise</p><h2 id="promise-h" className="mt-3 font-serif text-3xl sm:text-5xl">Shop with <span className="italic text-gradient">confidence</span></h2></div>
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
           {PROMISES.map(({ icon: Icon, stat, unit, title, text, tone }, i) => (
-            <Reveal as="li" key={title} delay={i * 0.08} className="h-full">
-              <div className={`group relative flex h-full min-h-[18rem] flex-col overflow-hidden rounded-[2rem] bg-gradient-to-br ${tone} p-7 shadow-[0_30px_60px_-42px_rgba(143,74,91,.7)] ring-1 ring-line transition duration-500 hover:-translate-y-2 hover:shadow-[0_44px_70px_-36px_rgba(143,74,91,.8)]`}>
+            <Rise3D as="li" key={title} delay={i * 0.08} className="h-full">
+              <TiltCard className={`group relative flex min-h-[18rem] flex-col overflow-hidden rounded-[2rem] bg-gradient-to-br ${tone} p-7 shadow-[0_30px_60px_-42px_rgba(143,74,91,.7)] ring-1 ring-line transition duration-500 hover:-translate-y-2 hover:shadow-[0_44px_70px_-36px_rgba(143,74,91,.8)]`}>
                 <Icon aria-hidden size={150} strokeWidth={0.7} className="pointer-events-none absolute -bottom-6 -right-6 text-gold-deep/15 transition duration-700 group-hover:-rotate-6 group-hover:scale-110" />
                 <span className="grid h-12 w-12 place-items-center rounded-full bg-white text-gold-deep shadow-md ring-1 ring-line transition duration-500 group-hover:bg-gradient-to-br group-hover:from-rose-soft group-hover:to-gold-deep group-hover:text-white"><Icon size={20} strokeWidth={1.5} aria-hidden /></span>
                 <p className="mt-6 flex items-baseline gap-2 font-serif leading-none text-espresso"><span className="text-6xl">{stat}</span><span className="text-sm uppercase tracking-[0.2em] text-gold-deep">{unit}</span></p>
@@ -183,8 +191,8 @@ export default async function AboutPage() {
                   <span aria-hidden className="mt-3 block h-px w-10 bg-gold-deep/60 transition-all duration-500 group-hover:w-20" />
                   <p className="mt-3 max-w-[15rem] text-sm leading-6 text-taupe-deep">{text}</p>
                 </div>
-              </div>
-            </Reveal>
+              </TiltCard>
+            </Rise3D>
           ))}
         </ul>
       </section>

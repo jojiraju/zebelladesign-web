@@ -92,7 +92,7 @@ export function SearchOverlay({ open, onClose, categories }: { open: boolean; on
       {open && (
         <motion.div role="dialog" aria-modal="true" aria-label="Search" className="fixed inset-0 z-[72]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
           <div className="absolute inset-0 bg-espresso/50 backdrop-blur-sm" onClick={onClose} aria-hidden />
-          <motion.div className="relative max-h-[94svh] overflow-y-auto rounded-b-[2rem] pt-9 bg-ivory text-espresso shadow-[0_40px_90px_-30px_rgba(35,26,29,.6)]"
+          <motion.div data-lenis-prevent className="relative max-h-[94svh] overflow-y-auto rounded-b-[2rem] pt-9 bg-ivory text-espresso shadow-[0_40px_90px_-30px_rgba(35,26,29,.6)]"
             initial={{ y: -48, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -48, opacity: 0 }} transition={{ type: "tween", duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
             <div className="container-x flex h-20 items-center justify-between">
               <p className="eyebrow">Search Zebella</p>

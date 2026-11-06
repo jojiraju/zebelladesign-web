@@ -105,7 +105,7 @@ export function CartContents({ onNavigate, variant = "page" }: { onNavigate?: ()
 
   return (
     <div className={variant === "page" ? "grid gap-8 lg:grid-cols-[1fr_25rem] lg:gap-10" : "flex min-h-0 flex-1 flex-col"}>
-      <div className={compact ? "min-h-0 flex-1 overflow-y-auto px-6" : "min-w-0 space-y-5"}>
+      <div data-lenis-prevent className={compact ? "min-h-0 flex-1 overflow-y-auto px-6" : "min-w-0 space-y-5"}>
         {!configured && <p className="mb-4 rounded-xl bg-cream p-3 text-sm">The store backend is not connected yet, so prices can&apos;t be confirmed.</p>}
         {error && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-danger">{error}</p>}
         <div className={compact ? "pt-1" : ""}><FreeShippingBar quote={quote} /></div>

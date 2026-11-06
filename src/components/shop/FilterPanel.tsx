@@ -147,7 +147,7 @@ export function FilterPanel({ facets, total, children }: { facets: Facets; total
             <h2 className="inline-flex items-center gap-2 font-serif text-xl"><SlidersHorizontal size={16} className="text-gold-deep" aria-hidden />Filters</h2>
             {activeCount > 0 && <button className="text-xs text-taupe-deep underline underline-offset-4 hover:text-espresso" onClick={clearAll}>Reset</button>}
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 [scrollbar-color:var(--color-rose-soft)_transparent] [scrollbar-width:thin]">{body}</div>
+          <div data-lenis-prevent className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 [scrollbar-color:var(--color-rose-soft)_transparent] [scrollbar-width:thin]">{body}</div>
         </div>
       </aside>
       <div className="min-w-0 pt-6">{children}</div>
@@ -160,7 +160,7 @@ export function FilterPanel({ facets, total, children }: { facets: Facets; total
             <motion.div role="dialog" aria-modal="true" aria-label="Filters" className="fixed inset-x-0 bottom-0 z-[71] flex max-h-[90vh] flex-col overflow-hidden rounded-t-[1.75rem] bg-ivory"
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "tween", duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
               <div className="flex items-center justify-between px-6 pb-3 pt-5"><h2 className="font-serif text-3xl">Filters</h2><button onClick={() => setOpen(false)} aria-label="Close filters" className="grid h-11 w-11 place-items-center rounded-full border border-line bg-white"><X size={20} /></button></div>
-              <div className="min-h-0 flex-1 overflow-y-auto px-6">{body}</div>
+              <div data-lenis-prevent className="min-h-0 flex-1 overflow-y-auto px-6">{body}</div>
               <div className="flex gap-3 border-t border-line bg-white p-4">
                 <button className="btn btn-ghost flex-1" onClick={clearAll} disabled={activeCount === 0}>Clear all</button>
                 <button className="btn btn-solid flex-[2]" onClick={() => setOpen(false)}>Show {total} {total === 1 ? "piece" : "pieces"}</button>
