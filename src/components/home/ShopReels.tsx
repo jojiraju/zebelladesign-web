@@ -112,6 +112,9 @@ function PriceBlock({ product, size = "base" }: { product: Product; size?: "base
   );
 }
 
+/** Solid, high-contrast brand button so it clearly reads as tappable. */
+const CTA = "mt-2 inline-flex h-10 cursor-pointer min-w-[130px] items-center justify-center gap-2 rounded-full bg-gold-deep px-5 text-[13px] font-semibold tracking-wide text-white shadow-[0_8px_18px_-6px_rgba(143,74,91,.8)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-95";
+
 function BuyingCard({ product, onShopNow }: { product: Product; onShopNow: () => void }) {
   const cart = useCart();
   const toast = useToast();
@@ -126,7 +129,7 @@ function BuyingCard({ product, onShopNow }: { product: Product; onShopNow: () =>
   }
 
   return (
-    <div className="flex items-stretch gap-3 rounded-2xl bg-white/90 p-3 text-left shadow-2xl ring-1 ring-white/60 backdrop-blur-xl">
+    <div className="flex items-stretch gap-3 rounded-2xl bg-white p-3 text-left shadow-[0_20px_50px_-10px_rgba(0,0,0,.55)]">
       <Link href={`/products/${product.slug}`} aria-label={`View ${product.name} details`} className="relative w-20 shrink-0 self-stretch overflow-hidden rounded-xl bg-cream">
         <Image src={coverOf(product)} alt="" fill sizes="80px" className="object-cover object-top" />
       </Link>
@@ -136,9 +139,9 @@ function BuyingCard({ product, onShopNow }: { product: Product; onShopNow: () =>
         {soldOut ? (
           <button type="button" disabled className="mt-2 h-[34px] min-w-[90px] cursor-not-allowed rounded-lg bg-gray-200 px-4 text-xs font-semibold text-gray-600">Sold out</button>
         ) : simple ? (
-          <button type="button" onClick={addSimple} className="mt-2 h-[34px] min-w-[90px] rounded-lg bg-black px-4 text-xs font-semibold text-white transition hover:bg-gray-800">Add to Cart</button>
+          <button type="button" onClick={addSimple} className={CTA}>Add to Cart <ShoppingBag size={14} aria-hidden /></button>
         ) : (
-          <button type="button" onClick={onShopNow} className="mt-2 h-[34px] min-w-[90px] rounded-lg bg-black px-4 text-xs font-semibold text-white transition hover:bg-gray-800">Shop Now</button>
+          <button type="button" onClick={onShopNow} className={CTA}>Shop Now <ArrowRight size={14} aria-hidden /></button>
         )}
       </div>
     </div>
@@ -234,7 +237,7 @@ export function ReelViewer({ reels, startIndex, onClose }: { reels: Product[]; s
   const current = reels[index];
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Shop from reels" className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80" onClick={onClose} onWheel={onWheel}>
+    <div role="dialog" aria-modal="true" aria-label="Shop from reels" className="reel-player fixed inset-0 z-[100] flex items-center justify-center bg-black/80" onClick={onClose} onWheel={onWheel}>
       <div className="relative aspect-[9/16] h-full max-h-[100dvh] max-w-full overflow-hidden bg-black sm:h-[94dvh] sm:rounded-[2rem]" onClick={(e) => e.stopPropagation()}
         style={{ touchAction: "pan-x" }} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerEnd} onPointerCancel={onPointerEnd}>
 

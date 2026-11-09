@@ -176,6 +176,9 @@ h1, h2, h3, .font-serif { font-family: var(--font-serif); font-weight: 400; lett
 @keyframes reel-drift { from { transform: scale(1.02) translate3d(0, 0, 0); } to { transform: scale(1.12) translate3d(-1.5%, -2%, 0); } }
 .reel-drift { animation: reel-drift 9s ease-in-out infinite alternate; }
 @media (prefers-reduced-motion: reduce) { .reel-drift { animation: none; } }
+/* Reel player: every enabled control shows a pointer cursor (Tailwind's base styles reset buttons to the arrow). */
+.reel-player a, .reel-player button:not(:disabled), .reel-player [role="button"] { cursor: pointer; }
+.reel-player button:disabled { cursor: not-allowed; }
 /* Full-bleed scroller inside .container-x: runs to the screen edges, but the first card still lines up with the page margin. */
 .reel-bleed {
   --reel-gutter: max(clamp(1rem, 3.5vw, 3rem), calc((100vw - 88rem) / 2 + clamp(1rem, 3.5vw, 3rem)));
