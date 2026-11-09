@@ -1,7 +1,6 @@
 import { Hero } from "@/components/home/Hero";
-import { DressStudio } from "@/components/home/DressStudio";
+import { ShopReels } from "@/components/home/ShopReels";
 import { Emblem } from "@/components/home/Emblem";
-import { ProductRing } from "@/components/home/ProductRing";
 import { ScrollMarquee } from "@/components/home/ScrollMarquee";
 import { ScrollStatement } from "@/components/ui/fx";
 import { HorizontalShowcase, type ShowcaseItem } from "@/components/ui/HorizontalShowcase";
@@ -36,6 +35,9 @@ export default async function HomePage() {
   const lookbook = (showFresh ? fresh : products.filter((p) => !featuredIds.has(p.id))).slice(0, 10).map(toPublicProduct);
   const showcaseItems: ShowcaseItem[] = lookbook.map((p) => ({ title: p.name, subtitle: formatINR(effectivePrice(p)), imageUrl: p.images[0]?.url || ART.productPlaceholder, href: `/products/${p.slug}` }));
 
+  // Shop-from-reels: products with a video first, then the rest; each reel opens a buying card.
+  const reelProducts = [...products.filter((p) => p.videoUrl), ...products.filter((p) => !p.videoUrl)].slice(0, 12).map(toPublicProduct);
+
   // Collection tiles: CMS-curated -> visible collections -> built-in editorial defaults.
   let tiles: FeaturedTile[] = home.featuredCollections;
   if (!tiles.length && collections.length)
@@ -44,9 +46,8 @@ export default async function HomePage() {
   return (
     <>
       <Hero hero={home.hero} slides={home.heroSlides} />
-      <ProductRing products={featuredPublic} />
       <CollectionsMosaic tiles={tiles} />
-      <DressStudio />
+      <ShopReels products={reelProducts} instagram={settings.social.instagram} />
       <FeaturedProducts products={featuredPublic} backendReady={isApiConfigured()} />
       <ScrollMarquee words={collections.map((c) => c.name)} />
       <ScrollStatement panel text={STORY_QUOTE} eyebrow="Our story" byline={{ name: FOUNDER.name, role: FOUNDER.role, image: FOUNDER.image }} cta={{ href: "/about", label: "Read our story" }} />

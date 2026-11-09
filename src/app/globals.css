@@ -171,3 +171,13 @@ h1, h2, h3, .font-serif { font-family: var(--font-serif); font-weight: 400; lett
 /* Big blurred blobs must not animate: re-blurring a large layer every frame janks scrolling. */
 [class*="blur-"].fx-drift, .aurora { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .fx-breathe, .fx-bob, .fx-drift, .fx-spin, .fx-twinkle { animation: none !important; } }
+
+/* Shop-from-reels: slow camera drift on photo-only reels so they feel like footage until a video is attached. */
+@keyframes reel-drift { from { transform: scale(1.02) translate3d(0, 0, 0); } to { transform: scale(1.12) translate3d(-1.5%, -2%, 0); } }
+.reel-drift { animation: reel-drift 9s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .reel-drift { animation: none; } }
+/* Full-bleed scroller inside .container-x: runs to the screen edges, but the first card still lines up with the page margin. */
+.reel-bleed {
+  --reel-gutter: max(clamp(1rem, 3.5vw, 3rem), calc((100vw - 88rem) / 2 + clamp(1rem, 3.5vw, 3rem)));
+  width: 100vw; margin-left: calc(50% - 50vw); padding-inline: var(--reel-gutter); scroll-padding-inline: var(--reel-gutter);
+}
