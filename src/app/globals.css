@@ -179,8 +179,3 @@ h1, h2, h3, .font-serif { font-family: var(--font-serif); font-weight: 400; lett
 /* Reel player: every enabled control shows a pointer cursor (Tailwind's base styles reset buttons to the arrow). */
 .reel-player a, .reel-player button:not(:disabled), .reel-player [role="button"] { cursor: pointer; }
 .reel-player button:disabled { cursor: not-allowed; }
-/* Full-bleed scroller inside .container-x: runs to the screen edges, but the first card still lines up with the page margin. */
-.reel-bleed {
-  --reel-gutter: max(clamp(1rem, 3.5vw, 3rem), calc((100vw - 88rem) / 2 + clamp(1rem, 3.5vw, 3rem)));
-  width: 100vw; margin-left: calc(50% - 50vw); padding-inline: var(--reel-gutter); scroll-padding-inline: var(--reel-gutter);
-}

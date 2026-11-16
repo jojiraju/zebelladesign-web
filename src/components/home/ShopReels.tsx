@@ -10,12 +10,13 @@
  *  - "View all" opens /shop-from-reels, a grid of every reel.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Eye, Play, ShoppingBag, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronUp, Play, ShoppingBag, Volume2, VolumeX, X } from "lucide-react";
 import { Reveal } from "@/components/ui/motion";
+import { ShelfHead } from "./ShelfHead";
 import { ProductPurchase } from "@/components/product/ProductPurchase";
 import { useCart } from "@/components/providers/CartProvider";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -37,14 +38,13 @@ const IG_GLYPH = (
 
 export function ReelsHeading({ instagram, as: H = "h2" }: { instagram?: string; as?: "h1" | "h2" }) {
   return (
-    <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-16">
-      <p className="eyebrow justify-center">Watch &amp; shop</p>
-      <H id="reels-h" className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">Shop from <span className="italic text-gradient">Reels</span></H>
-      <p className="mt-4 text-taupe-deep">See each piece in motion, then bring it home in a tap.</p>
-      <a href={instagram || "#"} target="_blank" rel="noopener noreferrer"
-        className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-line bg-white px-5 py-2.5 text-sm font-medium shadow-sm transition hover:-translate-y-0.5 hover:border-gold hover:text-gold-deep">
-        <span className="text-gold-deep">{IG_GLYPH}</span>@zebelladesigns
+    <div className="mx-auto mb-8 flex max-w-2xl flex-col items-center text-center sm:mb-12">
+      <a href={instagram || "#"} target="_blank" rel="noopener noreferrer" aria-label="Zebella on Instagram"
+        className="grid h-16 w-16 place-items-center rounded-full bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5] text-white shadow-lg transition hover:scale-105">
+        {IG_GLYPH}
       </a>
+      <H id="reels-h" className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">Shop From <span className="italic text-gradient">Reels</span></H>
+      <p className="mt-3 text-taupe-deep">See each piece in motion, then bring it home in a tap.</p>
     </div>
   );
 }
@@ -74,22 +74,29 @@ function ReelThumb({ product, sizes, previewMode = "visible", hovered = false, c
 
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden bg-espresso">
-      <Image src={coverOf(product)} alt={product.name} fill sizes={sizes} className={`object-cover object-top ${hasVideo ? "" : "reel-drift"}`} style={hasVideo ? undefined : { animationDelay: `${-(index % 5) * 1.6}s` }} />
-      {hasVideo && (
-        <video ref={videoRef} src={product.videoUrl} poster={coverOf(product)} muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" />
-      )}
+      {/* the zoom lives on this wrapper so it never fights the photo drift animation */}
+      <div className="absolute inset-0 transition-transform duration-[1400ms] ease-[var(--ease-lux)] group-hover:scale-[1.06]">
+        <Image src={coverOf(product)} alt={product.name} fill sizes={sizes} className={`object-cover object-top ${hasVideo ? "" : "reel-drift"}`} style={hasVideo ? undefined : { animationDelay: `${-(index % 5) * 1.6}s` }} />
+        {hasVideo && (
+          <video ref={videoRef} src={product.videoUrl} poster={coverOf(product)} muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" />
+        )}
+      </div>
       {caption && (
         <>
-          <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-espresso/85 via-espresso/10 to-espresso/25" />
-          <span className="absolute left-3.5 top-3.5 rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-md">{String(index + 1).padStart(2, "0")}</span>
-          <span aria-hidden className="absolute right-3.5 top-3.5 grid h-8 w-8 place-items-center rounded-full bg-white/25 text-white backdrop-blur-md">
-            {hasVideo ? <Play size={12} fill="currentColor" /> : <Eye size={14} />}
+          <span aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-espresso/85 via-espresso/30 to-transparent" />
+          {hasVideo && (
+            <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#ff5c8a]" />Reel
+            </span>
+          )}
+          <span aria-hidden className="absolute right-2.5 top-2.5 grid h-9 w-9 place-items-center rounded-full bg-white/25 text-white ring-1 ring-white/40 backdrop-blur-md transition duration-300 group-hover:scale-110 group-hover:bg-white group-hover:text-gold-deep">
+            <Play size={14} fill="currentColor" className="ml-0.5" />
           </span>
-          <span className="absolute inset-x-0 bottom-0 p-4 text-left text-ivory">
-            <span className="line-clamp-2 block font-serif text-lg leading-snug">{product.name}</span>
-            <span className="mt-1 flex items-center justify-between text-xs tracking-wide text-ivory/85">
-              {formatINR(effectivePrice(product))}
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.18em]">Shop <ArrowRight size={11} aria-hidden /></span>
+          <span className="absolute inset-x-0 bottom-0 p-3 text-left text-ivory sm:p-4">
+            <span className="line-clamp-2 block font-serif text-[0.95rem] leading-snug sm:text-lg">{product.name}</span>
+            <span className="mt-1.5 flex items-center justify-between gap-2">
+              <span className="text-xs font-medium tracking-wide sm:text-sm">{formatINR(effectivePrice(product))}</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-espresso transition group-hover:bg-gold-deep group-hover:text-white">Shop <ArrowRight size={10} aria-hidden /></span>
             </span>
           </span>
         </>
@@ -237,7 +244,7 @@ export function ReelViewer({ reels, startIndex, onClose }: { reels: Product[]; s
   const current = reels[index];
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Shop from reels" className="reel-player fixed inset-0 z-[100] flex items-center justify-center bg-black/80" onClick={onClose} onWheel={onWheel}>
+    <div role="dialog" aria-modal="true" aria-label="Shop From Reels" className="reel-player fixed inset-0 z-[100] flex items-center justify-center bg-black/80" onClick={onClose} onWheel={onWheel}>
       <div className="relative aspect-[9/16] h-full max-h-[100dvh] max-w-full overflow-hidden bg-black sm:h-[94dvh] sm:rounded-[2rem]" onClick={(e) => e.stopPropagation()}
         style={{ touchAction: "pan-x" }} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerEnd} onPointerCancel={onPointerEnd}>
 
@@ -298,42 +305,31 @@ export function ReelViewer({ reels, startIndex, onClose }: { reels: Product[]; s
   );
 }
 
+/** Shared look of every reel card: soft rounded frame, gentle shadow, lifts on hover. */
+const REEL_CARD = "group relative block aspect-[9/16] w-full cursor-pointer overflow-hidden rounded-2xl bg-espresso shadow-[0_24px_40px_-28px_rgba(35,26,29,.7)] ring-1 ring-black/5 transition duration-500 ease-[var(--ease-lux)] hover:-translate-y-1.5 hover:shadow-[0_34px_50px_-26px_rgba(143,74,91,.65)]";
+
 /* ------------------------------------------------------------------ */
 /* Home page section                                                   */
 /* ------------------------------------------------------------------ */
-export function ShopReels({ products, instagram }: { products: Product[]; instagram?: string }) {
+export function ShopReels({ products }: { products: Product[] }) {
   const [active, setActive] = useState<number | null>(null);
-  const strip = useRef<HTMLUListElement>(null);
   const reels = products.slice(0, 12);
   if (!reels.length) return null;
-  const scrollBy = (d: number) => strip.current?.scrollBy({ left: d * 400, behavior: "smooth" });
 
   return (
-    <section className="container-x mt-24 sm:mt-32" aria-labelledby="reels-h">
-      <ReelsHeading instagram={instagram} />
+    <section className="container-x mt-16 sm:mt-24" aria-labelledby="reels-h">
+      <ShelfHead id="reels-h" title="Shop From" accent="Reels" subtitle="See the latest styles in action" href="/shop-from-reels" seeAllLabel="View All" />
 
-      <div className="relative">
-        <ul ref={strip} className="reel-bleed flex snap-x items-start gap-4 overflow-x-auto pb-12 pt-2[scrollbar-width:none] sm:gap-5 [&::-webkit-scrollbar]:hidden">
-          {reels.map((p, i) => (
-            <Reveal as="li" key={p.id} delay={Math.min(i, 5) * 0.06} className={`shrink-0 snap-start ${i % 2 ? "sm:mt-10" : ""}`}>
-              <button type="button" onClick={() => setActive(i)} aria-label={`View reel ${i + 1}: ${p.name}`}
-                className="group relative block aspect-[9/16] w-[200px] cursor-pointer overflow-hidden rounded-[1.75rem] bg-espresso shadow-[0_30px_50px_-30px_rgba(35,26,29,.7)] ring-1 ring-black/5 transition duration-500 hover:-translate-y-2 hover:shadow-[0_40px_60px_-28px_rgba(143,74,91,.55)] md:w-[250px]">
-                <ReelThumb product={p} sizes="250px" caption index={i} />
-              </button>
-            </Reveal>
-          ))}
-        </ul>
-        {reels.length > 5 && (
-          <>
-            <button type="button" onClick={() => scrollBy(-1)} aria-label="Scroll reels left" className="absolute -left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white shadow-lg md:grid"><ChevronLeft size={18} /></button>
-            <button type="button" onClick={() => scrollBy(1)} aria-label="Scroll reels right" className="absolute -right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white shadow-lg md:grid"><ChevronRight size={18} /></button>
-          </>
-        )}
-      </div>
-
-      <div className="flex justify-center">
-        <Link href="/shop-from-reels" className="btn btn-ghost">View all reels <ArrowRight size={15} className="arrow" aria-hidden /></Link>
-      </div>
+      {/* Swipeable on phones/tablets; on desktop exactly five reels sit across the page (the rest are under "View All"). */}
+      <ul className="-mx-4 flex scroll-px-4 snap-x gap-3 overflow-x-auto px-4 pb-8 pt-1 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:grid lg:grid-cols-5 lg:gap-4 lg:overflow-visible lg:pb-2 lg:[&>li:nth-child(n+6)]:hidden [&::-webkit-scrollbar]:hidden">
+        {reels.map((p, i) => (
+          <Reveal as="li" key={p.id} delay={Math.min(i, 5) * 0.06} className="w-[46%] shrink-0 snap-start sm:w-[30%] lg:w-auto">
+            <button type="button" onClick={() => setActive(i)} aria-label={`Play reel ${i + 1}: ${p.name}`} className={REEL_CARD}>
+              <ReelThumb product={p} sizes="(min-width:1024px) 20vw, 46vw" caption index={i} />
+            </button>
+          </Reveal>
+        ))}
+      </ul>
 
       {active !== null && <ReelViewer reels={reels} startIndex={active} onClose={() => setActive(null)} />}
     </section>
@@ -343,41 +339,89 @@ export function ShopReels({ products, instagram }: { products: Product[]; instag
 /* ------------------------------------------------------------------ */
 /* /shop-from-reels: every reel in a tight grid                        */
 /* ------------------------------------------------------------------ */
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 10; // first 10 reels, then 10 more each time you reach the bottom
+const LOAD_DELAY_MS = 650; // short beat so the loader is seen and the next videos/photos can start fetching
+const GRID = "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5";
 
-export function ReelsGrid({ products, instagram }: { products: Product[]; instagram?: string }) {
+export function ReelsGrid({ products, categories = [], instagram }: { products: Product[]; categories?: { slug: string; name: string }[]; instagram?: string }) {
+  const [cat, setCat] = useState("all");
   const [shown, setShown] = useState(PAGE_SIZE);
-  const [hover, setHover] = useState<number | null>(null);
   const [active, setActive] = useState<number | null>(null);
   const sentinel = useRef<HTMLDivElement>(null);
-  const list = products.slice(0, shown);
-  const more = shown < products.length;
 
+  const chips = useMemo(() => {
+    const has = new Set(products.map((p) => p.categorySlug));
+    return categories.filter((c) => has.has(c.slug));
+  }, [products, categories]);
+  const filtered = useMemo(() => (cat === "all" ? products : products.filter((p) => p.categorySlug === cat)), [products, cat]);
+  const list = filtered.slice(0, shown);
+  const more = shown < filtered.length;
+
+  // Infinite scroll: when the loader row scrolls into view, wait a beat, then reveal the next page.
   useEffect(() => {
     if (!more || !sentinel.current) return;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setShown((n) => n + PAGE_SIZE); }, { rootMargin: "400px 0px" });
+    let timer: number | undefined;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && timer === undefined) timer = window.setTimeout(() => { timer = undefined; setShown((n) => n + PAGE_SIZE); }, LOAD_DELAY_MS);
+    }, { rootMargin: "150px 0px" });
     io.observe(sentinel.current);
-    return () => io.disconnect();
-  }, [more]);
+    return () => { io.disconnect(); window.clearTimeout(timer); };
+  }, [more, shown]);
+
+  const pick = (slug: string) => { setCat(slug); setShown(PAGE_SIZE); };
+  const chipCls = (on: boolean) => `shrink-0 cursor-pointer rounded-full border px-5 py-2 text-sm font-medium transition ${on ? "border-gold-deep bg-gold-deep text-white shadow-md" : "border-line bg-white text-espresso hover:border-gold hover:bg-blush"}`;
+  const skeletonShow = ["", "", "hidden sm:block", "hidden md:block", "hidden lg:block"];
 
   return (
-    <section className="container-x pb-24 pt-12" aria-labelledby="reels-h">
-      <ReelsHeading instagram={instagram} as="h1" />
-      {!products.length && (
-        <div role="status" className="py-10 text-center">
-          <p>There are no shoppable reels available yet.</p>
-          <Link href="/shop" className="underline">Shop all products</Link>
+    <section className="bg-[linear-gradient(to_bottom,#fbeaed,transparent_26rem)] pb-24 pt-10 sm:pt-14" aria-labelledby="reels-h">
+      <div className="container-x">
+        <ReelsHeading instagram={instagram} as="h1" />
+
+        {chips.length > 0 && (
+          <div className="-mx-4 mb-8 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+            <div role="group" aria-label="Filter reels by category" className="mx-auto flex w-max gap-2.5">
+              <button type="button" aria-pressed={cat === "all"} onClick={() => pick("all")} className={chipCls(cat === "all")}>All</button>
+              {chips.map((c) => (
+                <button key={c.slug} type="button" aria-pressed={cat === c.slug} onClick={() => pick(c.slug)} className={chipCls(cat === c.slug)}>{c.name}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!filtered.length && (
+          <div role="status" className="py-10 text-center">
+            <p>There are no shoppable reels available yet.</p>
+            <Link href="/shop" className="underline">Shop all products</Link>
+          </div>
+        )}
+
+        <div className={GRID}>
+          {list.map((p, i) => (
+            <button key={p.id} type="button" onClick={() => setActive(i)} aria-label={`Play reel ${i + 1}: ${p.name}`} className={REEL_CARD}>
+              <ReelThumb product={p} sizes="(min-width:1024px) 20vw, (min-width:768px) 25vw, (min-width:640px) 33vw, 50vw" caption index={i} />
+            </button>
+          ))}
         </div>
-      )}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-4">
-        {list.map((p, i) => (
-          <button key={p.id} type="button" onClick={() => setActive(i)} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}
-            aria-label={`View reel ${i + 1}: ${p.name}`} className="group relative aspect-[9/16] w-full cursor-pointer overflow-hidden rounded-3xl bg-espresso shadow-[0_24px_40px_-30px_rgba(35,26,29,.6)] transition duration-500 hover:-translate-y-1">
-            <ReelThumb product={p} sizes="(min-width:1024px) 20vw, 50vw" previewMode="hover" hovered={hover === i} caption index={i} />
-          </button>
-        ))}
+
+        {/* loader: shimmer placeholders for the next page + a spinner; this row also triggers the next page */}
+        {more && (
+          <div ref={sentinel} role="status" aria-live="polite" className="mt-3 sm:mt-4">
+            <div aria-hidden className={GRID}>
+              {skeletonShow.map((hide, i) => <div key={i} className={`aspect-[9/16] animate-pulse rounded-2xl bg-gradient-to-b from-blush to-cream ${hide}`} />)}
+            </div>
+            <p className="mt-8 flex items-center justify-center gap-3 text-sm text-taupe-deep">
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-gold border-t-transparent" />Loading more reels&hellip;
+            </p>
+          </div>
+        )}
+
+        {!more && filtered.length > PAGE_SIZE && (
+          <div className="mt-14 text-center">
+            <p className="font-serif text-2xl">You&rsquo;ve seen all {filtered.length} reels</p>
+            <Link href="/shop" className="btn btn-ghost mt-5">Shop all products <ArrowRight size={15} className="arrow" aria-hidden /></Link>
+          </div>
+        )}
       </div>
-      {more && <div ref={sentinel} className="h-16" />}
       {active !== null && <ReelViewer reels={list} startIndex={active} onClose={() => setActive(null)} />}
     </section>
   );

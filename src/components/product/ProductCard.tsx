@@ -8,7 +8,8 @@ import { Eye, Heart } from "lucide-react";
 import { Price } from "@/components/ui/Price";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useToast } from "@/components/providers/ToastProvider";
-import { totalAvailable } from "@/lib/commerce/catalog-rules";
+import { effectivePrice, totalAvailable } from "@/lib/commerce/catalog-rules";
+import { discountPercent } from "@/lib/commerce/money";
 import type { Product } from "@/lib/types";
 import dynamic from "next/dynamic";
 
@@ -24,6 +25,7 @@ export function ProductCard({ product, priority = false, sizes = "(min-width:102
   const img2 = second && img1 && second.url.endsWith(".svg") === img1.url.endsWith(".svg") ? second : undefined;
   const colors = [...new Map(product.variants.filter((v) => v.color).map((v) => [v.color!, v.colorHex])).entries()];
   const soldOut = totalAvailable(product) <= 0;
+  const off = discountPercent(product.price, effectivePrice(product));
   const badge = soldOut ? "Sold out" : product.newArrival ? "New" : product.bestSeller ? "Best seller" : null;
 
   return (
@@ -38,7 +40,9 @@ export function ProductCard({ product, priority = false, sizes = "(min-width:102
             </>
           ) : <Image src={ART.productPlaceholder} alt={product.name} fill sizes={sizes} className="object-cover" />}
         </Link>
-        {badge && <span className="absolute left-3 top-3 z-[2] rounded-full bg-ivory px-3 py-1 text-[0.62rem] font-medium uppercase tracking-[0.22em]">{badge}</span>}
+        {!soldOut && off > 0
+          ? <span className="absolute left-3 top-3 z-[2] rounded-full bg-[#e8457a] px-2.5 py-1 text-[0.7rem] font-bold tracking-wide text-white shadow-sm">-{off}%</span>
+          : badge && <span className="absolute left-3 top-3 z-[2] rounded-full bg-ivory px-3 py-1 text-[0.62rem] font-medium uppercase tracking-[0.22em]">{badge}</span>}
         <button type="button" aria-pressed={wished} aria-label={wished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
           onClick={(e) => { const added = wish.toggle(product.id); if (added) flyTo("wishlist", e.currentTarget.closest("[data-fly-card]"), img1?.url); toast(added ? "Saved to your wishlist" : "Removed from wishlist"); }}
           className="absolute right-2 top-2 z-[2] grid h-10 w-10 place-items-center rounded-full bg-ivory/85 backdrop-blur transition hover:bg-ivory">
@@ -49,13 +53,13 @@ export function ProductCard({ product, priority = false, sizes = "(min-width:102
           <Eye size={14} /> Quick view
         </button>
       </div>
-      <div className="mt-4 flex items-start justify-between gap-3">
+      <div className="mt-4 flex flex-col gap-1.5 lg:flex-row lg:items-start lg:justify-between lg:gap-3">
         <div className="min-w-0">
           <h3 className="truncate font-serif text-xl leading-snug"><Link href={`/products/${product.slug}`} className="link-underline">{product.name}</Link></h3>
-          <Price product={product} className="mt-1" />
+          <Price product={product} variant="card" className="mt-1" />
         </div>
         {colors.length > 1 && (
-          <ul className="mt-1.5 flex shrink-0 gap-1" aria-label="Available colours">
+          <ul className="flex shrink-0 gap-1 lg:mt-1.5" aria-label="Available colours">
             {colors.slice(0, 4).map(([name, hex]) => <li key={name} title={name} className="h-3 w-3 rounded-full border border-line" style={{ background: hex || "#d8cbb8" }} />)}
             {colors.length > 4 && <li className="text-[0.65rem] text-taupe-deep">+{colors.length - 4}</li>}
           </ul>

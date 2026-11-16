@@ -2,61 +2,69 @@ import { Hero } from "@/components/home/Hero";
 import { ShopReels } from "@/components/home/ShopReels";
 import { Emblem } from "@/components/home/Emblem";
 import { ScrollMarquee } from "@/components/home/ScrollMarquee";
-import { ScrollStatement } from "@/components/ui/fx";
-import { HorizontalShowcase, type ShowcaseItem } from "@/components/ui/HorizontalShowcase";
-import { ART } from "@/lib/art";
-import { formatINR } from "@/lib/commerce/money";
+import { AdCarousel } from "@/components/home/AdCarousel";
+import { buildAdSlides } from "@/lib/home-ads";
+import { getAdBanners } from "@/lib/ad-banners";
+import { getReelProducts } from "@/lib/reels";
+import { CategoryRail, BestSellers, NewArrivals, TrustStrip } from "@/components/home/Shelves";
+import { discountPercent } from "@/lib/commerce/money";
 import { effectivePrice } from "@/lib/commerce/catalog-rules";
+import { AllProducts } from "@/components/home/AllProducts";
+import { ScrollStatement } from "@/components/ui/fx";
 import { FOUNDER, STORY_QUOTE } from "@/lib/story";
-import { BrandStory, CollectionsMosaic, FeaturedProducts, PromoBanners, SocialGallery, Testimonials } from "@/components/home/Sections";
-import { getBanners, getCollections, getHomepage, getPublishedProducts, getSettings, getTestimonials, toPublicProduct } from "@/lib/server/catalog";
-import { isApiConfigured } from "@/lib/api/client";
-import type { FeaturedTile } from "@/lib/content";
+import { BrandStory, Testimonials } from "@/components/home/Sections";
+import { getCategories, getCollections, getHomepage, getPublishedProducts, getTestimonials, toPublicProduct } from "@/lib/server/catalog";
 
 export const revalidate = 60;
 
+/** Products shipped to the browser for the "All Products" list (boutique-scale catalog; the shop page has full filtering). */
+const ALL_PRODUCTS_CAP = 200;
+
 export default async function HomePage() {
-  const [home, settings, products, collections, banners, testimonials] = await Promise.all([
-    getHomepage(), getSettings(), getPublishedProducts(), getCollections(), getBanners(), getTestimonials(),
+  const [home, products, categories, collections, testimonials] = await Promise.all([
+    getHomepage(), getPublishedProducts(), getCategories(), getCollections(), getTestimonials(),
   ]);
 
-  // Featured products: explicit CMS picks -> products flagged featured -> newest.
-  const byId = new Map(products.map((p) => [p.id, p]));
-  let featured = home.featuredProductIds.map((id) => byId.get(id)).filter(Boolean) as typeof products;
-  if (!featured.length) featured = products.filter((p) => p.featured);
-  if (!featured.length) featured = products;
-  featured = featured.slice(0, 8);
-  const featuredPublic = featured.map(toPublicProduct);
+  // Best sellers: flagged first, then by units sold.
+  const bestSorted = [...products].sort((a, b) => Number(b.bestSeller) - Number(a.bestSeller) || (b.soldCount ?? 0) - (a.soldCount ?? 0));
+  const best = bestSorted.slice(0, 8);
+  const bestIds = new Set(best.map((p) => p.id));
 
-  // "Just landed" showcase: new arrivals that are not already in the featured ring (falls back to anything not featured).
-  const featuredIds = new Set(featured.map((p) => p.id));
-  const fresh = products.filter((p) => p.newArrival && !featuredIds.has(p.id));
-  const showFresh = fresh.length >= 4;
-  const lookbook = (showFresh ? fresh : products.filter((p) => !featuredIds.has(p.id))).slice(0, 10).map(toPublicProduct);
-  const showcaseItems: ShowcaseItem[] = lookbook.map((p) => ({ title: p.name, subtitle: formatINR(effectivePrice(p)), imageUrl: p.images[0]?.url || ART.productPlaceholder, href: `/products/${p.slug}` }));
+  // New arrivals: flagged new (not already a best seller) -> newest not in best sellers -> newest overall.
+  let fresh = products.filter((p) => p.newArrival && !bestIds.has(p.id));
+  if (fresh.length < 4) fresh = products.filter((p) => !bestIds.has(p.id));
+  if (fresh.length < 4) fresh = products;
+  fresh = fresh.slice(0, 10);
 
   // Shop-from-reels: products with a video first, then the rest; each reel opens a buying card.
-  const reelProducts = [...products.filter((p) => p.videoUrl), ...products.filter((p) => !p.videoUrl)].slice(0, 12).map(toPublicProduct);
+  const reelProducts = (await getReelProducts(products)).slice(0, 12).map(toPublicProduct);
 
-  // Collection tiles: CMS-curated -> visible collections -> built-in editorial defaults.
-  let tiles: FeaturedTile[] = home.featuredCollections;
-  if (!tiles.length && collections.length)
-    tiles = collections.slice(0, 5).map((c, i) => ({ title: c.name, imageUrl: c.imageUrl || ["/art/tile-new.svg", "/art/tile-festive.svg", "/art/tile-ethnic.svg", "/art/tile-signature.svg", "/art/tile-best.svg"][i], href: `/collections/${c.slug}` }));
+  // Offer banner headline: the genuine biggest markdown in the catalogue (hidden when nothing is on sale).
+  const maxOff = products.reduce((m, p) => Math.max(m, discountPercent(p.price, effectivePrice(p))), 0);
+
+  // Advertisement carousel: sale, new arrivals, favourites, a collection and the reels — all built from real catalogue data.
+  const adBanners = await getAdBanners(); // ready-made images in /public/ads win over the generated slides
+  const adSlides = buildAdSlides({ maxOff, best, fresh, reels: reelProducts, collections, products });
+
+  const railCategories = categories.filter((c) => c.visible !== false);
 
   return (
     <>
       <Hero hero={home.hero} slides={home.heroSlides} />
-      <CollectionsMosaic tiles={tiles} />
-      <ShopReels products={reelProducts} instagram={settings.social.instagram} />
-      <FeaturedProducts products={featuredPublic} backendReady={isApiConfigured()} />
+      <CategoryRail categories={railCategories} products={products} />
+      <BestSellers products={best.map(toPublicProduct)} />
       <ScrollMarquee words={collections.map((c) => c.name)} />
+      <NewArrivals products={fresh.map(toPublicProduct)} />
+      <ShopReels products={reelProducts} />
+      <AdCarousel slides={adSlides} banners={adBanners} />
+      <TrustStrip />
+      <AllProducts products={products.slice(0, ALL_PRODUCTS_CAP).map(toPublicProduct)} categories={railCategories.map((c) => ({ slug: c.slug, name: c.name }))} />
+
+      {/* The story, brand and social sections stay at the bottom for anyone who doesn't open the full list. */}
       <ScrollStatement panel text={STORY_QUOTE} eyebrow="Our story" byline={{ name: FOUNDER.name, role: FOUNDER.role, image: FOUNDER.image }} cta={{ href: "/about", label: "Read our story" }} />
-      <HorizontalShowcase eyebrow={showFresh ? "New arrivals" : "Keep exploring"} title={showFresh ? "Just landed" : "More to explore"} items={showcaseItems} href="/shop?sort=newest" linkLabel="Shop all" />
-      <PromoBanners banners={banners} />
       <BrandStory story={home.brandStory} />
       <Emblem message={home.editorialMessage || "Designed to be remembered."} />
       <Testimonials items={testimonials} />
-      <SocialGallery items={home.social} instagram={settings.social.instagram} />
     </>
   );
 }
