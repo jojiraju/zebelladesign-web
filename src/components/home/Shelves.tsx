@@ -17,15 +17,16 @@ export function CategoryRail({ categories, products }: { categories: Category[];
   return (
     <section className="container-x mt-8 sm:mt-12" aria-labelledby="cat-h">
       <ShelfHead id="cat-h" title="Shop by" accent="Category" subtitle="Find your style, your way" />
-      {/* Tiles share the page width evenly (like the product grids); with many categories they keep a minimum size and scroll. */}
-      <ul className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] sm:mx-0 sm:gap-6 sm:px-0 [&::-webkit-scrollbar]:hidden">
+      {/* Phones: a plain 3-across grid that wraps down the page (no sideways swiping).
+          Tablet/desktop: tiles share the page width evenly; with many categories they keep a minimum size and scroll. */}
+      <ul className="grid grid-cols-3 gap-x-3 gap-y-6 sm:flex sm:gap-6 sm:overflow-x-auto sm:pb-3 sm:[scrollbar-width:none] sm:[&::-webkit-scrollbar]:hidden">
         {categories.map((c, i) => (
-          <Reveal as="li" key={c.id} delay={Math.min(i, 8) * 0.04} y={14} className="min-w-[104px] max-w-[260px] flex-1 shrink-0 sm:min-w-[140px] lg:min-w-[150px]">
+          <Reveal as="li" key={c.id} delay={Math.min(i, 8) * 0.04} y={14} className="min-w-0 sm:min-w-[140px] sm:max-w-[260px] sm:flex-1 sm:shrink-0 lg:min-w-[150px]">
             <Link href={`/categories/${c.slug}`} className="group flex flex-col items-center gap-3">
               <span className="relative block aspect-square w-full overflow-hidden rounded-2xl bg-cream shadow-sm transition-transform duration-500 ease-[var(--ease-lux)] group-hover:-translate-y-1.5">
                 <Image src={c.imageUrl || firstImage.get(c.slug) || ART.productPlaceholder} alt="" fill sizes="(min-width:1024px) 20vw, 30vw" className="object-cover object-top transition-transform duration-700 group-hover:scale-105" />
               </span>
-              <span className="line-clamp-2 text-center font-serif text-base leading-tight text-espresso sm:text-xl">{c.name}</span>
+              <span className="line-clamp-2 text-center font-serif text-[0.95rem] leading-tight text-espresso sm:text-xl">{c.name}</span>
             </Link>
           </Reveal>
         ))}
@@ -34,15 +35,16 @@ export function CategoryRail({ categories, products }: { categories: Category[];
   );
 }
 
-/* ---------- Best sellers: two rows (swipeable on phones, 4 across on desktop) ---------- */
+/* ---------- Best sellers: two rows (2×2 grid on phones, two swipeable rows on small tablets, 4 across on desktop) ---------- */
 export function BestSellers({ products }: { products: Product[] }) {
   if (!products.length) return null;
   return (
     <section className="container-x mt-12 sm:mt-20" aria-labelledby="bs-h">
       <ShelfHead id="bs-h" title="Best" accent="Sellers" subtitle="The pieces everyone is loving" href="/shop?sort=popular" seeAllLabel="View All" />
-      <ul className="-mx-4 grid scroll-px-4 snap-x auto-cols-[46%] grid-flow-col grid-rows-2 gap-x-3 gap-y-8 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:auto-cols-[31%] sm:px-0 md:auto-cols-auto md:grid-flow-row md:grid-cols-4 md:grid-rows-none md:gap-x-5 md:gap-y-10 md:overflow-visible [&::-webkit-scrollbar]:hidden">
+      {/* Phones show two rows of two (the rest are under View All); from sm up it is the swipeable two-row / four-across layout. */}
+      <ul className="grid grid-cols-2 gap-x-3 gap-y-8 sm:snap-x sm:auto-cols-[31%] sm:grid-flow-col sm:grid-cols-none sm:grid-rows-2 sm:overflow-x-auto sm:pb-2 sm:[scrollbar-width:none] md:auto-cols-auto md:grid-flow-row md:grid-cols-4 md:grid-rows-none md:gap-x-5 md:gap-y-10 md:overflow-visible [&::-webkit-scrollbar]:hidden">
         {products.slice(0, 8).map((p, i) => (
-          <li key={p.id} className="snap-start"><ProductCard product={p} priority={i < 4} /></li>
+          <li key={p.id} className="sm:snap-start max-sm:[&:nth-child(n+5)]:hidden"><ProductCard product={p} priority={i < 4} /></li>
         ))}
       </ul>
     </section>
@@ -55,10 +57,10 @@ export function NewArrivals({ products }: { products: Product[] }) {
   return (
     <section className="container-x mt-14 sm:mt-24" aria-labelledby="na-h">
       <ShelfHead id="na-h" title="New" accent="Arrivals" subtitle="Fresh from the design studio" href="/shop?sort=newest" seeAllLabel="View All" />
-      {/* 2 across on phones, 3 on tablets, exactly 4 across the page width on desktop; more by swiping or the arrows */}
+      {/* Phones: a 2×2 grid (the rest are under View All). Tablets: 3 across, desktop: exactly 4 across the page width; more by swiping or the arrows. */}
       <ScrollRail>
         {products.slice(0, 10).map((p) => (
-          <li key={p.id} className="w-[calc((100%-0.75rem)/2)] shrink-0 snap-start sm:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)]"><ProductCard product={p} /></li>
+          <li key={p.id} className="sm:w-[calc((100%-2.5rem)/3)] sm:shrink-0 sm:snap-start lg:w-[calc((100%-3.75rem)/4)] max-sm:[&:nth-child(n+5)]:hidden"><ProductCard product={p} /></li>
         ))}
       </ScrollRail>
     </section>

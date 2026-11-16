@@ -40,19 +40,18 @@ export function AllProducts({ products, categories }: { products: Product[]; cat
 
   if (!products.length) return null;
 
-  const chipCls = (on: boolean) => `shrink-0 cursor-pointer rounded-full border px-5 py-2 text-sm font-medium transition ${on ? "border-gold-deep bg-gold-deep text-white shadow-md" : "border-line bg-white text-espresso hover:border-gold hover:bg-blush"}`;
+  const chipCls = (on: boolean) => `shrink-0 cursor-pointer rounded-full border px-4 py-1.5 text-[0.85rem] font-medium transition sm:px-5 sm:py-2 sm:text-sm ${on ? "border-gold-deep bg-gold-deep text-white shadow-md" : "border-line bg-white text-espresso hover:border-gold hover:bg-blush"}`;
 
   return (
     <section className="container-x mt-20 sm:mt-28" aria-labelledby="ap-h">
       <ShelfHead id="ap-h" eyebrow="The full edit" title="All Products" onSeeAll={!expanded && filtered.length > FIRST_PAGE ? seeAll : undefined} />
 
-      <div className="-mx-4 mb-8 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
-        <div role="group" aria-label="Filter by category" className="flex w-max gap-2.5">
-          <button type="button" aria-pressed={cat === "all"} onClick={() => pick("all")} className={chipCls(cat === "all")}>All</button>
-          {chips.map((c) => (
-            <button key={c.slug} type="button" aria-pressed={cat === c.slug} onClick={() => pick(c.slug)} className={chipCls(cat === c.slug)}>{c.name}</button>
-          ))}
-        </div>
+      {/* Chips wrap onto extra lines on narrow screens instead of scrolling sideways. */}
+      <div role="group" aria-label="Filter by category" className="mb-8 flex flex-wrap gap-2 sm:gap-2.5">
+        <button type="button" aria-pressed={cat === "all"} onClick={() => pick("all")} className={chipCls(cat === "all")}>All</button>
+        {chips.map((c) => (
+          <button key={c.slug} type="button" aria-pressed={cat === c.slug} onClick={() => pick(c.slug)} className={chipCls(cat === c.slug)}>{c.name}</button>
+        ))}
       </div>
 
       {filtered.length ? <ProductGrid products={filtered.slice(0, shown)} /> : <p className="py-10 text-center text-taupe-deep">No pieces in this category yet.</p>}

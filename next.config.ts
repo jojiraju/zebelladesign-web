@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
+    // In development, re-optimise images almost immediately so replacing a file in /public (e.g. a new ad banner with the same name)
+    // shows up right away. Production keeps Next's default long cache.
+    ...(process.env.NODE_ENV === "development" ? { minimumCacheTTL: 1 } : {}),
     remotePatterns: [
       { protocol: "https", hostname: "storage.googleapis.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },

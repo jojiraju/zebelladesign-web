@@ -320,10 +320,10 @@ export function ShopReels({ products }: { products: Product[] }) {
     <section className="container-x mt-16 sm:mt-24" aria-labelledby="reels-h">
       <ShelfHead id="reels-h" title="Shop From" accent="Reels" subtitle="See the latest styles in action" href="/shop-from-reels" seeAllLabel="View All" />
 
-      {/* Swipeable on phones/tablets; on desktop exactly five reels sit across the page (the rest are under "View All"). */}
-      <ul className="-mx-4 flex scroll-px-4 snap-x gap-3 overflow-x-auto px-4 pb-8 pt-1 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:grid lg:grid-cols-5 lg:gap-4 lg:overflow-visible lg:pb-2 lg:[&>li:nth-child(n+6)]:hidden [&::-webkit-scrollbar]:hidden">
+      {/* Phones: a 2×2 grid down the page (the rest are under "View All"). Tablets: swipeable row. Desktop: exactly five across. */}
+      <ul className="grid grid-cols-2 gap-3 sm:flex sm:snap-x sm:overflow-x-auto sm:pb-8 sm:pt-1 sm:[scrollbar-width:none] lg:grid lg:grid-cols-5 lg:gap-4 lg:overflow-visible lg:pb-2 lg:[&>li:nth-child(n+6)]:hidden [&::-webkit-scrollbar]:hidden">
         {reels.map((p, i) => (
-          <Reveal as="li" key={p.id} delay={Math.min(i, 5) * 0.06} className="w-[46%] shrink-0 snap-start sm:w-[30%] lg:w-auto">
+          <Reveal as="li" key={p.id} delay={Math.min(i, 5) * 0.06} className="sm:w-[30%] sm:shrink-0 sm:snap-start lg:w-auto max-sm:[&:nth-child(n+5)]:hidden">
             <button type="button" onClick={() => setActive(i)} aria-label={`Play reel ${i + 1}: ${p.name}`} className={REEL_CARD}>
               <ReelThumb product={p} sizes="(min-width:1024px) 20vw, 46vw" caption index={i} />
             </button>
@@ -369,7 +369,7 @@ export function ReelsGrid({ products, categories = [], instagram }: { products: 
   }, [more, shown]);
 
   const pick = (slug: string) => { setCat(slug); setShown(PAGE_SIZE); };
-  const chipCls = (on: boolean) => `shrink-0 cursor-pointer rounded-full border px-5 py-2 text-sm font-medium transition ${on ? "border-gold-deep bg-gold-deep text-white shadow-md" : "border-line bg-white text-espresso hover:border-gold hover:bg-blush"}`;
+  const chipCls = (on: boolean) => `shrink-0 cursor-pointer rounded-full border px-4 py-1.5 text-[0.85rem] font-medium transition sm:px-5 sm:py-2 sm:text-sm ${on ? "border-gold-deep bg-gold-deep text-white shadow-md" : "border-line bg-white text-espresso hover:border-gold hover:bg-blush"}`;
   const skeletonShow = ["", "", "hidden sm:block", "hidden md:block", "hidden lg:block"];
 
   return (
@@ -378,13 +378,11 @@ export function ReelsGrid({ products, categories = [], instagram }: { products: 
         <ReelsHeading instagram={instagram} as="h1" />
 
         {chips.length > 0 && (
-          <div className="-mx-4 mb-8 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
-            <div role="group" aria-label="Filter reels by category" className="mx-auto flex w-max gap-2.5">
-              <button type="button" aria-pressed={cat === "all"} onClick={() => pick("all")} className={chipCls(cat === "all")}>All</button>
-              {chips.map((c) => (
-                <button key={c.slug} type="button" aria-pressed={cat === c.slug} onClick={() => pick(c.slug)} className={chipCls(cat === c.slug)}>{c.name}</button>
-              ))}
-            </div>
+          <div role="group" aria-label="Filter reels by category" className="mb-8 flex flex-wrap justify-center gap-2 sm:gap-2.5">
+            <button type="button" aria-pressed={cat === "all"} onClick={() => pick("all")} className={chipCls(cat === "all")}>All</button>
+            {chips.map((c) => (
+              <button key={c.slug} type="button" aria-pressed={cat === c.slug} onClick={() => pick(c.slug)} className={chipCls(cat === c.slug)}>{c.name}</button>
+            ))}
           </div>
         )}
 
